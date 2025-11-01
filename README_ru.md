@@ -81,7 +81,7 @@ python src/main.py
 ash_herald/
 ├── src/
 │   ├── ash_herald/
-│   │   ├── actions/                 # Функциональные модули
+│   │   ├── actions/                 # Functional Modules
 │   │   │   ├── moon/
 │   │   │   │   └── moon_day.py
 │   │   │   └── spreads/
@@ -92,26 +92,22 @@ ash_herald/
 │   │   │   │   ├── add_card.py
 │   │   │   │   ├── daily_card.py
 │   │   │   │   └── three_cards.py
-│   │   ├── handlers/                # Обработчики сообщений
-│   │   │   ├── mailing_handler.py
+│   │   ├── handlers/                # Message handlers
 │   │   │   ├── main_handler.py
 │   │   │   └── spreads_handler.py
-│   │   ├── mailings/                # Система рассылок
-│   │   │   ├── mailing_settings.py
-│   │   │   └── morning_mailing.py
-│   │   ├── utils/                   # Вспомогательные утилиты
+│   │   ├── utils/                   # Helper Utilities
 │   │   │   ├── utils.py
 │   │   │   └── keyboard.py
-│   │   ├── bot.py                   # Основной бот
-│   │   ├── database.py              # Инициализация БД
-│   │   ├── sessions.py              # Управление сессиями
-│   │   └── texts.py                 # Текстовые ресурсы
-│   ├── resources/                   # Медиа-ресурсы
+│   │   ├── database.py              # Database Initialization
+│   │   ├── sessions.py              # Session Management
+│   │   └── texts.py                 # Text Resources
+│   ├── resources/                   # Media Resources
 │   │   ├── deviant_img/
 │   │   ├── lenorman_img/
 │   │   ├── muerte_img/
 │   │   └── tarot_img/
-│   └── main.py                      # Точка входа
+│   ├── bot.py                       # Main Bot
+│   └── main.py                      # Entry Point
 ├── .env
 ├── requirements.txt
 └── README.md
@@ -120,3 +116,4 @@ ash_herald/
 ---
 
 ### Приятного путешествия! 🪬
+
