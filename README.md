@@ -93,16 +93,11 @@ ash_herald/
 │   │   │   │   ├── daily_card.py
 │   │   │   │   └── three_cards.py
 │   │   ├── handlers/                # Message handlers
-│   │   │   ├── mailing_handler.py
 │   │   │   ├── main_handler.py
 │   │   │   └── spreads_handler.py
-│   │   ├── mailings/                # Mailing system
-│   │   │   ├── mailing_settings.py
-│   │   │   └── morning_mailing.py
 │   │   ├── utils/                   # Helper Utilities
 │   │   │   ├── utils.py
 │   │   │   └── keyboard.py
-│   │   ├── bot.py                   # Main Bot
 │   │   ├── database.py              # Database Initialization
 │   │   ├── sessions.py              # Session Management
 │   │   └── texts.py                 # Text Resources
@@ -111,6 +106,7 @@ ash_herald/
 │   │   ├── lenorman_img/
 │   │   ├── muerte_img/
 │   │   └── tarot_img/
+│   ├── bot.py                       # Main Bot
 │   └── main.py                      # Entry Point
 ├── .env
 ├── requirements.txt
@@ -118,5 +114,6 @@ ash_herald/
 ```
 
 ---
+
 
 ### Enjoy your journey! 🪬
