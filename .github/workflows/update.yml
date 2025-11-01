@@ -1,0 +1,48 @@
+name: Deploy to prod
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: prod
+    
+    steps:
+    - name: Checkout current branch
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Get current branch name
+      id: get_branch
+      run: echo "branch=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
+    
+    - name: Show branch info
+      run: |
+        echo "Deploying from branch: ${{ steps.get_branch.outputs.branch }}"
+        echo "GitHub REF: $GITHUB_REF"
+        echo "GitHub SHA: $GITHUB_SHA"
+    
+    - name: SSH Deploy
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USERNAME }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: ${{ secrets.SSH_PORT || 22 }}
+        script: |
+          cd /opt/ash_herald/
+          sudo systemctl stop ash_herald
+          git fetch --all --tags --prune
+          git reset --hard origin/master
+          git pull
+          echo "Switching to target branch: ${{ steps.get_branch.outputs.branch }}"
+          git switch ${{ steps.get_branch.outputs.branch }}
+          git reset --hard origin/${{ steps.get_branch.outputs.branch }}
+          git fetch --all --tags --prune
+          git pull --force
+          echo "Current branch: $(git branch --show-current)"
+          echo "Latest commit: $(git log --oneline -1)"
+          sudo systemctl start ash_herald
+          
