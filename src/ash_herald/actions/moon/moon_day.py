@@ -38,16 +38,15 @@ async def moon_day(bot, call, session):
             logger.info(f"User: {session.name}, moon_day: {moon_age}\n{moon_phase}\n{illumination}\n{moon_zodiac}")
         
             message_text = (
-                f"<b>╔═══════✦ ⋆☽ {moon_emoji} ☾⋆ ✦═══════╗</b>\n"
-                f"  ✧ Фаза луны ⋄ {moon_phase}\n"
-                f"  ✧ Лунный день ⋄ {moon_age}\n"
-                f"  ✧ Луна в знаке ⋄ {moon_zodiac}\n"
-                f"  ✧ Видимость луны ⋄ {illumination}%\n"
-                f"<b>╚═══════✦ ⋆☽ {moon_emoji} ☾⋆ ✦═══════╝</b>"
+                f"<b>═════✦ ⋆☽ {moon_emoji} ☾⋆ ✦══════</b>\n\n"
+                f"✧ Фаза луны ⋆ {moon_phase}\n"
+                f"✧ Лунный день ⋆ {moon_age}\n"
+                f"✧ Луна в знаке ⋆ {moon_zodiac}\n"
+                f"✧ Видимость луны ⋆☾ {illumination}%"
             )
             
             markup = types.InlineKeyboardMarkup()
-            btn1 = types.InlineKeyboardButton("⛧ К истокам ⛧", callback_data="thanks")
+            btn1 = types.InlineKeyboardButton("⛧ К истокам", callback_data="thanks")
             markup.add(btn1)
 
             await bot.send_message(chat_id, message_text, parse_mode="HTML", reply_markup=markup)
@@ -63,10 +62,9 @@ async def moon_day(bot, call, session):
             logger.error(f"User: {session.name}, API error {response.status_code}")
             await bot.send_message(
                 chat_id, 
-                "  ⋅ 🜏 ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ 🜏 ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ 🜏 ⋅\n"
+                "⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ 🜏 ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ \n"
                 "       <i>Лунные скрижали покрыты пеленой,</i>\n"
-                " <i>небесные силы временно безмолвствуют...</i>\n\n"
-                "  ⋅ 🜏 ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ 🜏 ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ 🜏 ⋅",
+                " <i>небесные силы временно безмолвствуют...</i>\n\n",
                 parse_mode="HTML"
             )
             
@@ -74,9 +72,8 @@ async def moon_day(bot, call, session):
         logger.error(f"User: {session.name}, error in moon_day: {e}")
         await bot.send_message(
             chat_id, 
-            "  ⋅ 🜏 ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ 🜏 ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ 🜏 ⋅\n"
+            "⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ 🜏 ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ \n"
             "       <i>Небеса закрыли свои врата...</i>\n"
-            "<i>Луна скрылась за облаками. Попробуй позже.</i>"
-            "  ⋅ 🜏 ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ 🜏 ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ 🜏 ⋅",
+            "<i>Луна скрылась за облаками. Попробуй позже.</i>",
             parse_mode="HTML"
         )

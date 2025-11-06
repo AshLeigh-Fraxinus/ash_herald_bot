@@ -98,15 +98,15 @@ async def main_text_handler(bot, message, session):
         await handle_start(bot, message)
         return True
     
-    if text in ("⛧ к истокам ⛧", "/thanks", "thanks"):
+    if text in ("⛧ к истокам", "/thanks", "thanks"):
         await handle_thanks(bot, message, session)
         return True 
     
-    if text in ("/cards_spread", "cards_spread", "🂠 обратиться к картам 🂠"):
+    if text in ("🂠 обратиться к картам", "/cards_spread", "cards_spread"):
         await handle_spread(bot, message)
         return True
 
-    if text in ("☽ обратиться к луне ☾", "/moon_day", "moon_day"):
+    if text in ("☽ обратиться к луне", "/moon_day", "moon_day"):
         await moon_day(bot, message, session)
         return True
 

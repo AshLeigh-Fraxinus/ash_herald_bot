@@ -20,10 +20,9 @@ async def three_cards(bot, call, session):
     time.sleep(1.5)
     await bot.send_message(
         chat_id, 
-        "  ⋅ ⋆ ⋅ ✦ ⋅ ⋆ ⋅ ✦ ⋅ ⋆ ⋅ ✦ ⋅ ⋆ ⋅ ✦ ⋅ ⋆ ⋅ ✦ ⋅ ⋆ ⋅  \n"
-        "       <i>Карты ждут твоего вопроса...</i>\n\n"
-        "  <i>Какую тайну доверишь им?</i>\n"
-        "⋅ ⋆ ⋅ ✦ ⋅ ⋆ ⋅ ✦ ⋅ ⋆ ⋅ ✦ ⋅ ⋆ ⋅ ✦ ⋅ ⋆ ⋅ ✦ ⋅ ⋆ ⋅  ",
+        "⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ \n"
+        "<i>Карты ждут твоего вопроса...</i>\n\n"
+        "<i>Какую тайну доверишь им?</i>\n",
         parse_mode="HTML"
     )
 
@@ -82,14 +81,10 @@ async def handle_three_cards_question(bot, message, session):
     )
 
     message_text = (
-        "<b>╔═════════✦ ⋆🃍⋆ ✦═════════╗</b>\n"
-        "       <i>Три карты осветят вопрос</i>\n"
-        "    <i>с разных сторон, как три свечи</i>\n"
-        "  <i>— больше света, больше ясности.</i>\n"
-        "<b>╚═════════✦ ⋆🃍⋆ ✦═════════╝</b>\n\n"
+        "<b>═══════✦ ⋆🃍⋆ ✦════════</b>\n"
         f"{cards_text}\n\n"
+        "⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ \n\n"
         f"{meaning}\n\n"
-        " ⋅ ⋆ ⋅ ✦ ⋅ ⋆ ⋅ ✦ ⋅ ⋆ ⋅ ✦ ⋅ ⋆ ⋅ ✦ ⋅ ⋆ ⋅ ✦ ⋅ ⋆ ⋅ "
     )
 
     collage_path = await create_cards_collage(cards, deck)
@@ -112,8 +107,11 @@ async def handle_three_cards_question(bot, message, session):
             with open(collage_path, "rb") as photo:
                 await bot.send_photo(
                     chat_id, 
-                    photo, 
-                    caption=message_text, 
+                    photo
+                )
+                await bot.send_message(
+                    chat_id, 
+                    message_text, 
                     parse_mode="HTML", 
                     reply_markup=markup
                 )
@@ -128,10 +126,9 @@ async def handle_three_cards_question(bot, message, session):
         logger.error(f"{str(e)}")
         await bot.send_message(
             chat_id, 
-            "🜏 ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ 🜏 ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ 🜏"
+            "⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ 🜏 ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ \n"
             "       <i>Пути карт иногда извилисты,</i>\n"
-            "<i>послание скрылось в тумане...</i>\n\n"
-            "🜏 ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ 🜏 ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ 🜏",
+            "<i>послание скрылось в тумане...</i>\n\n",
             parse_mode="HTML"
         )
 
@@ -140,7 +137,7 @@ async def create_cards_collage(cards, deck):
     
     for card in cards:
         card_id = card['number']
-        image_path = f"src/resources/{deck}_img/{card_id}_{card['position']}.webp"
+        image_path = f"resources/{deck}_img/{card_id}_{card['position']}.webp"
         
         if not os.path.exists(image_path):
             image_path = f"resources/tarot_img/{card_id}_{card['position']}.webp"
@@ -182,7 +179,7 @@ async def create_cards_collage(cards, deck):
         x_position = padding + (i * (card_width + padding))
         collage.paste(img, (x_position, padding))
     
-    temp_path = f"src/resources/temp_collage_{int(time.time())}.jpg"
+    temp_path = f"resources/temp_collage_{int(time.time())}.jpg"
     collage.save(temp_path, 'JPEG', quality=95)
     
     return temp_path

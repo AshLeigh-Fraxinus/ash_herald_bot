@@ -50,8 +50,8 @@ async def handle_additional_question(bot, message, session):
     logger.info(f"User: {session.name}, Deck: {deck}, Additional Card: {card['number']}: {card['name']} - {card['position']}")
 
     card_id = card['number']
-    sticker_path = f"src/resources/{deck}_img/{card_id}_{card['position']}.webp"
-    sticker_path = f"src/resources/{deck}_img/{card_id}_{card['position']}.webp"
+    sticker_path = f"resources/{deck}_img/{card_id}_{card['position']}.webp"
+    sticker_path = f"resources/{deck}_img/{card_id}_{card['position']}.webp"
     logger.info(f"Looking for sticker at: {sticker_path}")
     
     try:
@@ -69,7 +69,8 @@ async def handle_additional_question(bot, message, session):
             logger.error(f"User: {session.name}, action: no fallback sticker in {fallback_path}")
                 
     position = "прямое положение" if card["position"] == "upright" else "перевёрнутое положение"
-    cards_text = f"✧ <b>{card['name']}</b> ⋄ <i>{position}</i>"
+    card_emoji = "⛤" if card['position'] == 'upright' else "⛧"
+    cards_text = f"{card_emoji} <b>{card['name']}</b> ⋄ <i>{position}</i>"
     
     if user_question:
         logger.info(f'User: {session.name}, Additional Question: "{utils.no_newline(user_question)}", [Card]: {card}')
@@ -86,36 +87,13 @@ async def handle_additional_question(bot, message, session):
     except Exception as e:
         logger.error(f"User: {session.name}, {str(e)}")
         meaning = (
-            "🜏 ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ 🜏 ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ 🜏\n"
-            "🜏 ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ 🜏 ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ 🜏\n"
+            "⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ 🜏 ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ \n"
             "       <b>Символы остались безмолвны...</b>\n"
             "<i>Попробуй позже...</i>\n"
-            "🜏 ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ 🜏 ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ 🜏"
-            "🜏 ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ 🜏 ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ 🜏"
         )
 
-    if user_question:
-        header = (
-            "<b>╔═════════✦ ⋆🃟⋆ ✦═════════╗</b>\n"
-            "         <i>Ещё один лик из тумана,</i>\n"
-            "<b>╔═════════✦ ⋆🃟⋆ ✦═════════╗</b>\n"
-            "         <i>Ещё один лик из тумана,</i>\n"
-            "    <i>проясняющий узор судьбы...</i>\n"
-            "<b>╚═════════✦ ⋆🃟⋆ ✦═════════╝</b>\n\n"
-            "<b>╚═════════✦ ⋆🃟⋆ ✦═════════╝</b>\n\n"
-        )
-    else:
-        header = (
-            "<b>╔═════════✦ ⋆🃟⋆ ✦═════════╗</b>\n"
-            "<b>╔═════════✦ ⋆🃟⋆ ✦═════════╗</b>\n"
-            "         <i>Карта-уточнение проясняет</i>\n"
-            "        <i>скрытые грани расклада...</i>\n"
-            "<b>╚═════════✦ ⋆🃟⋆ ✦═════════╝</b>\n\n"
-            "<b>╚═════════✦ ⋆🃟⋆ ✦═════════╝</b>\n\n"
-        )
-
-    message_text = f"{header}{cards_text}\n\n{meaning}\n⋅ ⋆ ⋅ ✦ ⋅ ⋆ ⋅ ✦ ⋅ ⋆ ⋅ ✦ ⋅ ⋆ ⋅ ✦ ⋅ ⋆ ⋅ ✦ ⋅ ⋆ ⋅"
-    message_text = f"{header}{cards_text}\n\n{meaning}\n⋅ ⋆ ⋅ ✦ ⋅ ⋆ ⋅ ✦ ⋅ ⋆ ⋅ ✦ ⋅ ⋆ ⋅ ✦ ⋅ ⋆ ⋅ ✦ ⋅ ⋆ ⋅"
+    message_text = f"{cards_text}\n\n{meaning}\n\n⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ "
+    message_text = f"{cards_text}\n\n{meaning}\n\n⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ "
     
     markup = types.InlineKeyboardMarkup()
     btn1 = types.InlineKeyboardButton("⛧ Благодарю ⛧", callback_data="thanks")
@@ -131,11 +109,8 @@ async def handle_additional_question(bot, message, session):
         logger.error(f"{str(e)}")
         await bot.send_message(
             chat_id, 
-            "🜏 ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ 🜏 ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ 🜏\n"
-            "🜏 ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ 🜏 ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ 🜏\n"
+            "⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ 🜏 ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ \n"
             "       <b>Пелена исказила послание...</b>\n"
-            "<i>Пути карт иногда извилисты...</i>\n"
-            "🜏 ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ 🜏 ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ 🜏", 
-            "🜏 ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ 🜏 ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ 🜏", 
+            "<i>Пути карт иногда извилисты...</i>\n",
             parse_mode="HTML"
         )

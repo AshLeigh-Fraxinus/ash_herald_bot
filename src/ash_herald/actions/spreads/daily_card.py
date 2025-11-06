@@ -59,7 +59,7 @@ async def daily_card(bot, call, session):
     meaning = await get_interpretation(question, cards)
     logger.info(f'User: {session.name}: meaning received: "{utils.no_newline(meaning)}"')
 
-    sticker_path = f"src/resources/{deck}_img/{card_id}_{card['position']}.webp"
+    sticker_path = f"resources/{deck}_img/{card_id}_{card['position']}.webp"
     logger.info(f"Looking for sticker at: {sticker_path}")
     try:
         with open(sticker_path, "rb") as sticker:
@@ -68,7 +68,7 @@ async def daily_card(bot, call, session):
     except FileNotFoundError:
         logger.error(f"User: {session.name}, action: no sticker in {sticker_path}")
 
-        fallback_path = f"src/resources/tarot_img/{card_id}_{card['position']}.webp"
+        fallback_path = f"resources/tarot_img/{card_id}_{card['position']}.webp"
         try:
             with open(fallback_path, "rb") as sticker:
                 await bot.send_sticker(chat_id, sticker)
@@ -77,11 +77,11 @@ async def daily_card(bot, call, session):
             logger.error(f"User: {session.name}, action: no fallback sticker in {fallback_path}")
 
     try:
+        card_emoji = "⛤" if card['position'] == 'upright' else "⛧"
         message_text = (
-            f"{texts.DAILY_CARD}"
-            f"✦ <b>{card_name}</b> ⋄ <i>{card_position}</i>\n\n"
-            f"{meaning}\n\n"
-            " ⋅ ✦ ⋅ ⋆ ⋅ ✦ ⋅ ⋆ ⋅ ✦ ⋅ ⋆ ⋅ ✦ ⋅ ⋆ ⋅ ✦ ⋅ ⋆ ⋅ ✦ ⋅ ")
+            f"{card_emoji} <b>{card_name}</b> ⋄ <i>{card_position}</i>\n\n"
+            "⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ \n\n"
+            f"{meaning}")
 
         markup = types.InlineKeyboardMarkup()
         btn1 = types.InlineKeyboardButton("⛧ Благодарю ⛧", callback_data="thanks")

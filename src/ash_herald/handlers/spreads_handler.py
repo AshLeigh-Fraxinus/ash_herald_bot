@@ -49,9 +49,9 @@ text_handlers = {
     "daily_card": handle_daily_card_text,
     "three_cards": handle_three_cards_text,
     "cards_spread": handle_cards_spread_text,
-    "✧ карта дня ✧": handle_daily_card_text,
-    "✦ три лика судьбы ✦": handle_three_cards_text,
-    "✥ выбрать колоду ✥": lambda bot, message, session: choose_deck.choose_deck(bot, message, session)
+    "✧ карта дня": handle_daily_card_text,
+    "✦ три лика судьбы": handle_three_cards_text,
+    "✥ выбрать колоду": lambda bot, message, session: choose_deck.choose_deck(bot, message, session)
 }
 
 async def handle_daily_card_callback(bot, call, session):
