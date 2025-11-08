@@ -28,7 +28,7 @@ async def daily_card(bot, call, session):
             parse_mode="HTML",
             reply_markup=markup
         )
-        logger.info(f"User: {session.name}, daily_card limit reached for today")
+        logger.debug(f"User: {session.name}, daily_card limit reached for today")
         return
 
     deck = session.deck 
@@ -47,7 +47,7 @@ async def daily_card(bot, call, session):
 
     cards = await draw_cards(deck, 1)  
     card = cards[0]
-    logger.info(f"User: {session.name}, Deck: {deck}, Cards: {card['number']}: {card['name']} - {card['position']}") 
+    logger.debug(f"User: {session.name}, Deck: {deck}, Cards: {card['number']}: {card['name']} - {card['position']}") 
 
     session.mark_daily_card_drawn()
 
@@ -55,16 +55,16 @@ async def daily_card(bot, call, session):
     card_name = card['name']
     card_position = "прямое положение" if card['position'] == 'upright' else "перевёрнутое положение"
 
-    logger.info(f"User: {session.name}, action: -> get_interpretation")
+    logger.debug(f"User: {session.name}, action: -> get_interpretation")
     meaning = await get_interpretation(question, cards)
-    logger.info(f'User: {session.name}: meaning received: "{utils.no_newline(meaning)}"')
+    logger.debug(f'User: {session.name}: meaning received: "{utils.no_newline(meaning)}"')
 
     sticker_path = f"resources/{deck}_img/{card_id}_{card['position']}.webp"
-    logger.info(f"Looking for sticker at: {sticker_path}")
+    logger.debug(f"Looking for sticker at: {sticker_path}")
     try:
         with open(sticker_path, "rb") as sticker:
             await bot.send_sticker(chat_id, sticker)
-            logger.info(f"User: {session.name}, action: {sticker_path} sent")
+            logger.debug(f"User: {session.name}, action: {sticker_path} sent")
     except FileNotFoundError:
         logger.error(f"User: {session.name}, action: no sticker in {sticker_path}")
 
@@ -72,7 +72,7 @@ async def daily_card(bot, call, session):
         try:
             with open(fallback_path, "rb") as sticker:
                 await bot.send_sticker(chat_id, sticker)
-                logger.info(f"User: {session.name}, action: fallback {fallback_path} sent")
+                logger.warning(f"User: {session.name}, action: fallback {fallback_path} sent")
         except FileNotFoundError:
             logger.error(f"User: {session.name}, action: no fallback sticker in {fallback_path}")
 

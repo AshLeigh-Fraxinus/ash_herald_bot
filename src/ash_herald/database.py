@@ -42,7 +42,7 @@ class DatabaseManager:
             ''')
             
             conn.commit()
-        logger.info("Database initialized successfully")
+        logger.debug("Database initialized successfully")
 
     def get_user(self, chat_id: str) -> Optional[Dict[str, Any]]:
 
@@ -163,7 +163,7 @@ class DatabaseManager:
             
             conn.commit()
         
-        logger.info(f"Reset session for: {name}. Current state: 'main'")
+        logger.debug(f"Reset session for: {name}. Current state: 'main'")
 
     def get_all_users(self) -> List[Dict[str, Any]]:
 
@@ -201,8 +201,8 @@ class DatabaseManager:
             conn.commit()
         
         if inactive_users:
-            logger.info(f"Reset {deleted_count} inactive sessions: {', '.join(inactive_users)}")
+            logger.debug(f"Reset {deleted_count} inactive sessions: {', '.join(inactive_users)}")
         else:
-            logger.info("No inactive sessions to clean up")
+            logger.debug("No inactive sessions to clean up")
 
 db_manager = DatabaseManager()

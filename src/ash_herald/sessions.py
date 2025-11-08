@@ -82,9 +82,9 @@ class UserSession:
         can_draw = last_date < today
         
         if not can_draw:
-            logger.info(f"{self.name} has already requested daily card today")
+            logger.debug(f"{self.name} has already requested daily card today")
         else:
-            logger.info(f"{self.name} can request daily card")
+            logger.debug(f"{self.name} can request daily card")
             
         return can_draw
 
@@ -92,7 +92,7 @@ class UserSession:
         self.last_daily_card_date = datetime.datetime.now()
         self.update_activity()
         self._save_to_db()
-        logger.info(f"User: {self.name}, daily_card marked for today")
+        logger.debug(f"User: {self.name}, daily_card marked for today")
 
     def update_activity(self):
         self.last_activity = datetime.datetime.now()
@@ -114,7 +114,7 @@ class UserSession:
         self.update_activity()
         self._save_to_db()
 
-        logger.info(f"✥ Путь перезапущен для: {self.name} (из состояния: {old_state})")
+        logger.debug(f"✥ Путь перезапущен для: {self.name} (из состояния: {old_state})")
 
     def get_session_info(self) -> dict:
         return {

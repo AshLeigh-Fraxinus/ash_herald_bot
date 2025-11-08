@@ -12,8 +12,7 @@ import bot as bot
 def main():
     logging.basicConfig(
         level=logging.INFO,
-        format="%(asctime)s [%(levelname)s] [module: %(name)s]: %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
+        format="[%(levelname)s] [module: %(name)s]: %(message)s",
         handlers=[
             logging.StreamHandler(),
             logging.FileHandler("bot.log", "a", encoding="utf-8")

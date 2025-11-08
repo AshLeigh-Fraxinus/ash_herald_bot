@@ -35,7 +35,7 @@ async def moon_day(bot, call, session):
             illumination = current_state["Illumination"]
             moon_zodiac = current_state["Zodiac"]["NameLocalized"]
 
-            logger.info(f"User: {session.name}, moon_day: {moon_age}\n{moon_phase}\n{illumination}\n{moon_zodiac}")
+            logger.debug(f"moon age: {moon_age}, moon phaze: {moon_phase}, illumination: {illumination}, zodiac: {moon_zodiac}")
         
             message_text = (
                 f"<b>═════✦ ⋆☽ {moon_emoji} ☾⋆ ✦══════</b>\n\n"

@@ -17,6 +17,7 @@ class TelegramBot:
         load_dotenv()
         BOT_TOKEN = os.getenv("BOT_TOKEN")
         if not BOT_TOKEN:
+            self.logger.error("Токен бота не найден в переменных окружения")
             raise ValueError("Токен бота не найден в переменных окружения")
         return AsyncTeleBot(BOT_TOKEN)
     

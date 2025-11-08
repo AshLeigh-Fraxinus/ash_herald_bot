@@ -17,7 +17,6 @@ async def handle_spread(bot, message):
     name_tuple = utils.get_username_and_names(message)
     name = sessions.session_manager.get_name(chat_id, name_tuple)
     session = sessions.session_manager.get_session(chat_id, name)
-    logger.info(f"User: {session.name}, action: /cards_spread")
     sessions.session_manager.reset_session(chat_id)
     await bot.send_message(chat_id, texts.CARDS_TEXT, parse_mode="HTML", reply_markup=keyboard.get_cards_keyboard())
 
@@ -31,7 +30,7 @@ async def handle_thanks(bot, obj, session=None):
         name = sessions.session_manager.get_name(chat_id, name_tuple)
         session = sessions.session_manager.get_session(chat_id, name)
     
-    logger.info(f"-> SPREADS_HANDLER, User: {session.name}, returning to main menu")
+    logger.debug(f"-> SPREADS_HANDLER, User: {session.name}, returning to main menu")
     
     sessions.session_manager.reset_session(chat_id)
     await bot.send_message(chat_id, texts.THANKS_TEXT, parse_mode="HTML", reply_markup=keyboard.get_main_keyboard())
@@ -93,7 +92,7 @@ async def handle_spread_message(bot, message, session):
     return False
 
 async def handle_spread_callback(bot, call, session):
-    logger.info(f"-> SPREADS_HANDLER, User: {session.name}, action: {call.data}")
+    logger.debug(f"-> SPREADS_HANDLER, User: {session.name}, action: {call.data}")
 
     if call.data in callback_handlers:
         await callback_handlers[call.data](bot, call, session)

@@ -43,16 +43,16 @@ async def handle_additional_question(bot, message, session):
     )
     time.sleep(1.5)
 
-    logger.info(f"User: {session.name}, action: additional_card -> draw_cards, type: {question_type}")
+    logger.debug(f"User: {session.name}, action: additional_card -> draw_cards, type: {question_type}")
     cards = await draw_cards(deck, 1)
     card = cards[0]
 
-    logger.info(f"User: {session.name}, Deck: {deck}, Additional Card: {card['number']}: {card['name']} - {card['position']}")
+    logger.debug(f"User: {session.name}, Deck: {deck}, Additional Card: {card['number']}: {card['name']} - {card['position']}")
 
     card_id = card['number']
     sticker_path = f"resources/{deck}_img/{card_id}_{card['position']}.webp"
     sticker_path = f"resources/{deck}_img/{card_id}_{card['position']}.webp"
-    logger.info(f"Looking for sticker at: {sticker_path}")
+    logger.debug(f"Looking for sticker at: {sticker_path}")
     
     try:
         with open(sticker_path, "rb") as sticker:
@@ -64,7 +64,7 @@ async def handle_additional_question(bot, message, session):
         try:
             with open(fallback_path, "rb") as sticker:
                 await bot.send_sticker(chat_id, sticker)
-                logger.info(f"User: {session.name}, action: fallback {fallback_path} sent")
+                logger.warning(f"User: {session.name}, action: fallback {fallback_path} sent")
         except FileNotFoundError:
             logger.error(f"User: {session.name}, action: no fallback sticker in {fallback_path}")
                 
@@ -73,16 +73,16 @@ async def handle_additional_question(bot, message, session):
     cards_text = f"{card_emoji} <b>{card['name']}</b> ⋄ <i>{position}</i>"
     
     if user_question:
-        logger.info(f'User: {session.name}, Additional Question: "{utils.no_newline(user_question)}", [Card]: {card}')
+        logger.debug(f'User: {session.name}, Additional Question: "{utils.no_newline(user_question)}", [Card]: {card}')
     else:
-        logger.info(f'User: {session.name}, Clarification without new question, [Card]: {card}')
+        logger.debug(f'User: {session.name}, Clarification without new question, [Card]: {card}')
 
     try:
         full_question = full_question_context + f" Дополнительная карта: {card}."
         
-        logger.info(f"User: {session.name}, action: additional_card -> get_interpretation")
+        logger.debug(f"User: {session.name}, action: additional_card -> get_interpretation")
         meaning = await get_interpretation(full_question, cards)
-        logger.info(f'User: {session.name}, additional meaning received: "{utils.no_newline(meaning)}"')
+        logger.debug(f'User: {session.name}, additional meaning received: "{utils.no_newline(meaning)}"')
         
     except Exception as e:
         logger.error(f"User: {session.name}, {str(e)}")

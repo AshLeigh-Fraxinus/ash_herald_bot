@@ -1,11 +1,8 @@
 import logging
-from telebot import types
 import ash_herald.utils.utils as utils
 import ash_herald.utils.keyboard as keyboard
-from ash_herald.database import db_manager
 
-
-logger = logging.getLogger('choose_deck')
+logger = logging.getLogger('CHOOSE_DECK')
 
 async def choose_deck(bot, call, session):
     chat_id = await utils.get_chat_id(call)
@@ -30,22 +27,22 @@ async def def_deck(bot, call, session):
         if call.data in ('tarot_deck', '/tarot_deck'):
             session.deck = 'tarot'
             deck_display = "Таро"
-            logger.info(f"User: {session.name}, deck selected: tarot")
+            logger.debug(f"User: {session.name}, deck selected: tarot")
 
         elif call.data in ('deviant_deck', '/deviant_deck'):
             session.deck = 'deviant'
             deck_display = "Безумной луны"
-            logger.info(f"User: {session.name}, deck selected: deviant")
+            logger.debug(f"User: {session.name}, deck selected: deviant")
 
         elif call.data in ('muerte_deck', '/muerte_deck'):
             session.deck = 'muerte'
             deck_display = "Святой смерти"
-            logger.info(f"User: {session.name}, deck selected: muerte")
+            logger.debug(f"User: {session.name}, deck selected: muerte")
 
         elif call.data in ('lenorman_deck', '/lenorman_deck'):
             session.deck = 'lenorman'
             deck_display = "Ленорман"
-            logger.info(f"User: {session.name}, deck selected: lenorman")
+            logger.debug(f"User: {session.name}, deck selected: lenorman")
         else:
             logger.warning(f"User: {session.name}, unknown deck selection: {call.data}")
             await bot.send_message(

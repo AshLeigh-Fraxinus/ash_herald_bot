@@ -20,7 +20,7 @@ async def handle_all_messages(bot, message):
     if await handle_spread_waiting_state(bot, message, session):
         return
 
-    logger.info(f"User: {session.name}, action: new message, text: {message.text}")
+    logger.debug(f"User: {session.name}, action: new message, text: {message.text}")
     
     handled = await handle_spread_message(bot, message, session)
     if handled:
@@ -41,7 +41,7 @@ async def button_callback_handler(bot, call):
     name = sessions.session_manager.get_name(chat_id, name_tuple)
     session = sessions.session_manager.get_session(chat_id, name)
 
-    logger.info(f"-> MAIN_HANDLER, User: {session.name}, action: {call.data}")
+    logger.debug(f"-> MAIN_HANDLER, User: {session.name}, action: {call.data}")
 
     try:
         await bot.edit_message_reply_markup(
@@ -52,7 +52,7 @@ async def button_callback_handler(bot, call):
     except Exception as e:
         logger.warning(f"Could not edit message markup: {e}")
     
-    logger.info(f"User: {session.name}, session: {session.state}, callback: {call.data}")
+    logger.debug(f"User: {session.name}, session: {session.state}, callback: {call.data}")
     
     try:
 
@@ -73,19 +73,19 @@ async def main_callback_handler(bot, call, session):
     # Основные команды
     #------------------
     if call.data in ("start", "/start"):
-        logger.info(f"-> start, User: {session.name}")
+        logger.debug(f"-> start, User: {session.name}")
         await handle_start(bot, call)
 
     elif call.data == "moon_day":
-        logger.info(f"-> MOON_DAY, User: {session.name}")
+        logger.debug(f"-> MOON_DAY, User: {session.name}")
         await moon_day.moon_day(bot, call, session)
 
     elif call.data == "cards_spread":
-        logger.info(f"-> CARDS_SPREAD, User: {session.name}")
+        logger.debug(f"-> CARDS_SPREAD, User: {session.name}")
         await handle_spread(bot, call)
 
     else:
-        logger.info(f"-> MAIN_HANDLER, User: {session.name}, action: unknown callback - {call.data}")
+        logger.debug(f"-> MAIN_HANDLER, User: {session.name}, action: unknown callback - {call.data}")
         await bot.send_message(chat_id, texts.UNKNOWN_COMMAND_TEXT, parse_mode="HTML")
 
 #-------------------------------
@@ -120,7 +120,7 @@ async def handle_start(bot, message):
     name_tuple = utils.get_username_and_names(message)
     name = sessions.session_manager.get_name(chat_id, name_tuple)
     session = sessions.session_manager.get_session(chat_id, name)
-    logger.info(f"User: {session.name}, action: /start")
+    logger.debug(f"User: {session.name}, action: /start")
     sessions.session_manager.reset_session(chat_id)
     await bot.send_message(chat_id, texts.START_TEXT, parse_mode="HTML", reply_markup=keyboard.get_main_keyboard())
 
@@ -132,10 +132,10 @@ async def handle_unknown_message(bot, message, session):
     text = message.text
     
     if session.is_waiting_for_question:
-        logger.info(f"User: {session.name}, action: new message, [text]: {text}")
+        logger.debug(f"User: {session.name}, action: new message, [text]: {text}")
         session.is_waiting_for_question = False
         session.data['user_answer'] = text
         await bot.send_message(chat_id, texts.START_TEXT, parse_mode="HTML", reply_markup=keyboard.get_main_keyboard())
     else:
-        logger.info(f"User: {session.name}, action: unknown command, [text]: {text}")
+        logger.warning(f"User: {session.name}, action: unknown command, [text]: {text}")
         await bot.send_message(chat_id, texts.UNKNOWN_COMMAND_TEXT, parse_mode="HTML")

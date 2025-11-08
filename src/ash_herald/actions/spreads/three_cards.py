@@ -26,7 +26,7 @@ async def three_cards(bot, call, session):
         parse_mode="HTML"
     )
 
-    logger.info(f"User: {session.name}, session: waiting_for_three_cards_question")
+    logger.debug(f"User: {session.name}, session: waiting_for_three_cards_question")
 
 async def handle_three_cards_question(bot, message, session):
     chat_id = await utils.get_chat_id(message)
@@ -48,7 +48,7 @@ async def handle_three_cards_question(bot, message, session):
     )
     time.sleep(1.5)
 
-    logger.info(f"User: {session.name}, action: three_cards -> draw_cards")
+    logger.debug(f"User: {session.name}, action: three_cards -> draw_cards")
     cards = await draw_cards(deck, 3)
     card_lines = []
     for i, card in enumerate(cards, 1):
@@ -57,13 +57,13 @@ async def handle_three_cards_question(bot, message, session):
         card_lines.append(card_line)
 
     cards_text = "\n".join(card_lines)
-    logger.info(f'User: {session.name}, Deck: {deck}, Question: "{utils.no_newline(user_question)}", [Cards]: {cards}')
+    logger.debug(f'User: {session.name}, Deck: {deck}, Question: "{utils.no_newline(user_question)}", [Cards]: {cards}')
 
     try:
         full_question = f"Вопрос: {user_question}. Карты: {cards}"
-        logger.info(f"User: {session.name}, action: three_cards -> get_interpretation")
+        logger.debug(f"User: {session.name}, action: three_cards -> get_interpretation")
         meaning = await get_interpretation(full_question, cards)
-        logger.info(f'User: {session.name}, meaning received: "{utils.no_newline(meaning)}"')
+        logger.debug(f'User: {session.name}, meaning received: "{utils.no_newline(meaning)}"')
 
         session.data["previous_question"] = user_question
         session.data["previous_cards"] = cards
@@ -81,7 +81,7 @@ async def handle_three_cards_question(bot, message, session):
     )
 
     message_text = (
-        "<b>═══════✦ ⋆🃍⋆ ✦════════</b>\n"
+        "<b>═══════✦ ⋆🃍⋆ ✦════════</b>\n\n"
         f"{cards_text}\n\n"
         "⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ \n\n"
         f"{meaning}\n\n"
@@ -119,7 +119,7 @@ async def handle_three_cards_question(bot, message, session):
         else:
             await bot.send_message(chat_id, message_text, parse_mode="HTML", reply_markup=markup)
             
-        logger.info(f"User: {session.name}, action: three_cards sent with clean collage")
+        logger.info(f"User: {session.name}, action: three_cards sent with collage")
         session.state = "waiting_for_additional_question"
 
     except Exception as e:
