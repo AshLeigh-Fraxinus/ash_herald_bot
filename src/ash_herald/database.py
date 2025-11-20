@@ -7,7 +7,7 @@ from typing import Optional, Dict, Any, List
 logger = logging.getLogger('DATABASE')
 
 class DatabaseManager:
-    def __init__(self, db_path: str = "sessions.db"):
+    def __init__(self, db_path: str = "database/sessions.db"):
         self.db_path = db_path
         self.init_database()
 
