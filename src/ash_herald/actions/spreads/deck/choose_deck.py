@@ -17,8 +17,6 @@ async def choose_deck(bot, call, session):
         reply_markup=keyboard.get_deck_keyboard()
     )
 
-    logger.info(f"User: {session.name}, session: choosing_deck")
-
 async def def_deck(bot, call, session):
     chat_id = await utils.get_chat_id(call)
     
