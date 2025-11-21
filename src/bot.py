@@ -1,9 +1,11 @@
 import os, time, asyncio, logging, signal
 
-from ash_herald.handlers.main_handler import CallbackHandler, MessageHandler
 from telebot.async_telebot import AsyncTeleBot
-from ash_herald.database import db_manager
+from service.database import db_manager
+from handlers.router import Router
 from dotenv import load_dotenv
+
+router = Router()
 
 class ApplicationState:
     def __init__(self):
@@ -25,20 +27,13 @@ class TelegramBot:
         return AsyncTeleBot(BOT_TOKEN)
     
     def setup_handlers(self):
-        message_handler = MessageHandler()
-        callback_handler = CallbackHandler()
+        @self.bot.message_handler(content_types=['text'])
+        async def handle_text_messages(message):
+            await router.route_message(self.bot, message)
 
-        @self.bot.message_handler(commands=['start'])
-        async def start(message):
-            await message_handler.handle_start(self.bot, message)
-        
-        @self.bot.message_handler(func=lambda message: True)
-        async def handle_messages(message):
-            await message_handler.handle_all_messages(self.bot, message)
-        
         @self.bot.callback_query_handler(func=lambda call: True)
-        async def handle_callbacks(call):
-            await callback_handler.handle_callbacks(self.bot, call)
+        async def handle_callback(call):
+            await router.route_callback(self.bot, call)
 
     def signal_handler(self, signum, frame):
         self.logger.info("Herald shutting down gracefully...")
@@ -74,3 +69,7 @@ class TelegramBot:
     
     def run(self):
         asyncio.run(self.run_async())
+
+if __name__ == "__main__":
+    bot = TelegramBot()
+    bot.run()

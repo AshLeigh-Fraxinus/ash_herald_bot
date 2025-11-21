@@ -1,5 +1,4 @@
-import sys
-import os
+import os, sys
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, current_dir)
@@ -18,7 +17,6 @@ def main():
             logging.FileHandler("bot.log", "a", encoding="utf-8")
         ]
     )
-
     bot_instance = bot.TelegramBot()
     bot_instance.run()
 
