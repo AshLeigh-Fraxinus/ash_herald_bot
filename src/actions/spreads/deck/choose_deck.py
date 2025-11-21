@@ -7,7 +7,6 @@ logger = logging.getLogger('CHOOSE_DECK')
 async def choose_deck(bot, call, session):
     chat_id = await utils.get_chat_id(call)
     session.state = "choosing_deck"
-    session.deck = 'tarot'
 
     await bot.edit_message_text(
         chat_id=chat_id,
@@ -28,12 +27,12 @@ async def def_deck(bot, call, session):
             logger.info(f"User: {session.name}, deck set to: tarot")
 
         elif call.data in ('deviant_moon_deck', '/deviant_moon_deck'):
-            session.deck = 'deviant'
+            session.deck = 'deviant_moon'
             deck_display = "Безумной луны"
             logger.info(f"User: {session.name}, deck set to: deviant")
 
         elif call.data in ('santa_muerte_deck', '/santa_muerte_deck'):
-            session.deck = 'muerte'
+            session.deck = 'santa_muerte'
             deck_display = "Святой смерти"
             logger.info(f"User: {session.name}, deck set to: muerte")
 
