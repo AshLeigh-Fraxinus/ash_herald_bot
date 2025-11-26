@@ -4,6 +4,7 @@ from utils import keyboard, utils, texts
 from actions.moon import moon_day
 from actions.spreads import daily_card, three_cards
 from actions.spreads.deck import choose_deck
+from actions.weather.weather import change_city
 from actions.spreads.add_card import handle_additional_question
 
 logger = logging.getLogger('CALLBACK_HANDLER')
@@ -27,6 +28,8 @@ class CallbackHandler:
             'santa_muerte_deck': choose_deck.def_deck,
             'lenorman_deck': choose_deck.def_deck,
             'persona3_deck': choose_deck.def_deck,
+            "change_city": self._handle_change_city,
+            "weather_today": self._handle_weather_today,
         }
     
     async def handle(self, bot, call):
@@ -84,7 +87,15 @@ class CallbackHandler:
             parse_mode="HTML",
             reply_markup=keyboard.get_cards_keyboard()
         )
+
+    async def _handle_change_city(self, bot, call, session):
+        from actions.weather.weather import change_city
+        await change_city(bot, call, session)
     
+    async def _handle_weather_today(self, bot, call, session):
+        from actions.weather.weather import weather_today
+        await weather_today(bot, call, session)
+
     async def _handle_unknown(self, bot, call, session):
         chat_id = await utils.get_chat_id(call)
         await bot.send_message(chat_id, texts.UNKNOWN_COMMAND_TEXT, parse_mode="HTML")

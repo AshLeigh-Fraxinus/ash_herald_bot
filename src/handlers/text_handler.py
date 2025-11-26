@@ -1,3 +1,4 @@
+from actions.weather.weather import validate_city, weather_today
 from service import sessions
 from utils import utils, texts, keyboard
 from actions.moon import moon_day
@@ -19,6 +20,8 @@ class TextHandler:
             "🂠 обратиться к картам": self._handle_cards_spread,
             "moon_day": self._handle_moon_day,
             "☽ обратиться к луне": self._handle_moon_day,
+            "weather_today": self._handle_weather_today,
+            "change_city": self._handle_weather_today
         }
     
     def _setup_text_handlers(self):
@@ -66,6 +69,10 @@ class TextHandler:
             from actions.spreads.deck import def_deck
             await def_deck(bot, message, session)
             return True
+        elif session.state == "waiting_for_city":
+            from actions.weather.weather import handle_city_input
+            await handle_city_input(bot, message, session)
+            return True
         return False
     
     async def _handle_start(self, bot, message, session):
@@ -97,6 +104,9 @@ class TextHandler:
     
     async def _handle_moon_day(self, bot, message, session):
         await moon_day.moon_day(bot, message, session)
+
+    async def _handle_weather_today(self, bot, message, session):
+        await weather_today(bot, message, session)
     
     async def _handle_unknown(self, bot, message, session):
         chat_id = await utils.get_chat_id(message)
