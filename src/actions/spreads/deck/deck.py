@@ -50,7 +50,7 @@ LENORMAN_CARDS = [
 ]
 
 async def draw_cards(deck='tarot', count=1):
-    if deck in ['tarot', 'deviant', 'muerte', 'persona3']:
+    if deck in ['tarot', 'deviant_moon', 'santa_muerte', 'persona3']:
         cards = TAROT_CARDS
         logger.debug(f"Using tarot cards for deck: {deck}")
     elif deck == 'lenorman':
