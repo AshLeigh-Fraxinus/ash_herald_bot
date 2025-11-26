@@ -14,7 +14,6 @@ async def handle_additional_question(bot, message, session):
     if hasattr(message, 'text') and message.text:
         user_question = message.text.strip()
         session.data["additional_question"] = user_question
-        question_type = "дополнительный вопрос"
         full_question_context = (
             f"Исходный вопрос: {session.data.get('previous_question', '')}. "
             f"Исходный расклад: {session.data.get('previous_cards', [])}. "
@@ -26,7 +25,6 @@ async def handle_additional_question(bot, message, session):
     else:
         user_question = ""
         session.data["additional_question"] = ""
-        question_type = "уточнение без нового вопроса"
         full_question_context = (
             f"Исходный вопрос: {session.data.get('previous_question', '')}. "
             f"Исходный расклад: {session.data.get('previous_cards', [])}. "

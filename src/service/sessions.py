@@ -14,6 +14,7 @@ class Session:
         self._name = data.get('name', self.chat_id)
         self._state = data.get('state', 'main')
         self._deck = data.get('deck', 'tarot')
+        self._city = data.get('city', '')
         self._is_waiting_for_question = bool(data.get('is_waiting_for_question', 0))
         
         self.data = self._parse_json_field(data.get('data', '{}'))
@@ -59,6 +60,15 @@ class Session:
     @deck.setter
     def deck(self, value):
         self._deck = value
+        self._save_to_db()
+    
+    @property
+    def city(self):
+        return self._city
+
+    @city.setter
+    def city(self, value):
+        self._city = value
         self._save_to_db()
 
     @property
@@ -125,6 +135,7 @@ class Session:
             self.chat_id,
             state=self.state,
             deck=self.deck,
+            city=self.city,
             last_daily_card_date=self.last_daily_card_date.isoformat() if self.last_daily_card_date else None,
             last_activity=self.last_activity.isoformat() if self.last_activity else None
         )

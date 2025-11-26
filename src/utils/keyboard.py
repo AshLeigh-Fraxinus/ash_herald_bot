@@ -4,8 +4,10 @@ def get_main_keyboard():
     markup = types.InlineKeyboardMarkup()
     btn1 = types.InlineKeyboardButton(text="🂠 Обратиться к картам", callback_data='cards_spread')
     btn2 = types.InlineKeyboardButton(text="☽ Обратиться к луне", callback_data='moon_day')
+    btn3 = types.InlineKeyboardButton(text="✧ Погода на сегодня", callback_data='weather_today')
     markup.add(btn1)
     markup.add(btn2)
+    markup.add(btn3)
     return markup
 
 def get_cards_keyboard():
