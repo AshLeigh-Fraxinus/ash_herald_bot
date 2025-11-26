@@ -20,7 +20,7 @@ async def request_city(bot, call, session, change_city=False):
             "⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ \n"
             "<i>                 Введите новый город</i>\n\n"
             "<b>Пожалуйста, напиши город</b>\n<b>на английском языке</b>\n\n"
-            "Например: Moscow"
+            "Например: Saint Petersburg"
         )
     
     await bot.send_message(chat_id, message_text, parse_mode="HTML")
@@ -50,9 +50,9 @@ async def validate_city(bot, message, session):
             chat_id, 
             "⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ \n"
             "<i>        Не удалось найти город...</i>\n\n"
-            "Пожалуйста, проверь название города:\n"
-            "Оно должно быть на английском языке\n"
-            "Например: Saint Petersburg",
+            "Проверь название города:\n"
+            "    Оно должно быть на\n    английском языке\n\n"
+            "<b>Например: Saint Petersburg</b>",
             parse_mode="HTML"
         )
         logger.debug(f"User: {session.name}, invalid city: {raw_city}")

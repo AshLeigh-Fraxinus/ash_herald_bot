@@ -42,6 +42,12 @@ def parse_weather_data(data):
 
     first_forecast = data['list'][0]
     pressure_mmhg = round(first_forecast['main']['pressure'] * 0.750062)
+    if 750 >= pressure_mmhg:
+        pressure_status = "▽"
+    if pressure_mmhg >= 765:
+        pressure_status = "△"
+    else:
+        pressure_status = "♢"
     wind_direction = get_wind_direction(first_forecast['wind']['deg'])
     wind_speed = first_forecast['wind']['speed']
     
@@ -52,6 +58,7 @@ def parse_weather_data(data):
         'current_weather_symbol': current_weather_symbol,
         'forecasts_by_time': forecasts_by_time,
         'pressure_mmhg': pressure_mmhg,
+        'pressure_status': pressure_status,
         'wind_direction': wind_direction,
         'wind_speed': wind_speed
     }
@@ -61,7 +68,7 @@ def format_weather_message(weather_data):
         return None
         
     message_text = (
-        f"<b>══════✦ ⋆☽ {weather_data['current_weather_symbol']} ☾⋆ ✦══════</b>\n\n"
+        f"<b>════════✦ ₊ ⊹ {weather_data['current_weather_symbol']} ₊ ⊹ ✦════════</b>\n\n"
         f"<b>Погода в городе {weather_data['city_name']} на сегодня:</b>\n\n"
     )
 
@@ -75,12 +82,12 @@ def format_weather_message(weather_data):
             feels_like = round(forecast['main']['feels_like'])
             description = forecast['weather'][0]['description']
             
-            message_text += f"✧ {time}:\n    ⋅    {symbol} {description}\n    ⋅    {temp}°C (ощущается как {feels_like}°C)\n"
+            message_text += f"✧ {time}:\n       ⋅  {symbol} {description}\n       ⋅  {temp}°C <i>(ощущается как {feels_like}°C)</i>\n"
 
     message_text += (
         f"\n"
         f"✧ Ветер: {weather_data['wind_direction']} {weather_data['wind_speed']} м/с\n"
-        f"✧ Давление: {weather_data['pressure_mmhg']} мм рт.ст.\n\n"
+        f"✧ Давление: {weather_data['pressure_mmhg']} мм рт.ст. {weather_data['pressure_status']}\n\n"
         f"✧ Восход солнца: {weather_data['sunrise']}\n"
         f"✧ Закат солнца: {weather_data['sunset']}\n"
     )
