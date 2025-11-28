@@ -16,13 +16,13 @@ class ColoredFormatter(logging.Formatter):
     }
     
     RESET = '\033[0m'
-    
+
     def format(self, record):
         is_h_module = record.name.startswith('H.')
         colors = self.H_MODULE_COLORS if is_h_module else self.NORMAL_MODULE_COLORS
         
         color = colors.get(record.levelname, self.RESET)
-        log_fmt = f"{color}[%(levelname)s] [%(name)s]: %(message)s{self.RESET}"
+        log_fmt = f"{color}[%(name)s]: %(message)s{self.RESET}"
         formatter = logging.Formatter(log_fmt)
         return formatter.format(record)
 

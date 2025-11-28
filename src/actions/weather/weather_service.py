@@ -1,13 +1,13 @@
 import os, datetime, requests, logging
 from telebot import types
 
-logger = logging.getLogger('H.weather')
+logger = logging.getLogger('H.weather_service')
 
-def get_weather_data(city):
+def get_weather_data(city, cnt):
     base_url = os.getenv("WEATHER_API_URL")
     key = os.getenv("WEATHER_API_KEY")
     
-    url = base_url + city + "&cnt=5&appid=" + key
+    url = base_url + city + "&cnt=" + cnt + "&appid=" + key
     
     try:
         response = requests.get(url)
@@ -20,7 +20,7 @@ def get_weather_data(city):
         logger.error(f"Error fetching weather data: {e}")
         return None
 
-def parse_weather_data(data):
+def parse_weather_data(data, target_day=0):
     if not data:
         return None
         
@@ -28,30 +28,64 @@ def parse_weather_data(data):
     sunrise = datetime.datetime.fromtimestamp(data['city']['sunrise']).strftime('%H:%M')
     sunset = datetime.datetime.fromtimestamp(data['city']['sunset']).strftime('%H:%M')
 
-    current_forecast = data['list'][0]
+    first_forecast_date = datetime.datetime.fromtimestamp(data['list'][0]['dt']).date()
+    target_date = first_forecast_date + datetime.timedelta(days=target_day)
+    
+    forecast_date = datetime.datetime.combine(target_date, datetime.time.min)
+
+    current_forecast = None
+    for forecast in data['list']:
+        forecast_dt = datetime.datetime.fromtimestamp(forecast['dt'])
+        if forecast_dt.date() == target_date:
+            current_forecast = forecast
+            break
+    
+    if not current_forecast:
+        current_forecast = data['list'][0] 
+
     current_weather_code = current_forecast['weather'][0]['id']
     current_weather_symbol = get_weather_symbol(current_weather_code)
 
     forecasts_by_time = {}
+
+    day_forecasts = []
     for forecast in data['list']:
-        forecast_time = forecast['dt_txt'].split()[1]
-        hour = int(forecast_time.split(':')[0])
+        forecast_dt = datetime.datetime.fromtimestamp(forecast['dt'])
+        if forecast_dt.date() == target_date:
+            day_forecasts.append(forecast)
 
+    for forecast in day_forecasts:
+        hour = int(forecast['dt_txt'].split()[1].split(':')[0])
         time_of_day = get_time_of_day(hour)
-        forecasts_by_time[time_of_day] = forecast
 
-    first_forecast = data['list'][0]
-    pressure_mmhg = round(first_forecast['main']['pressure'] * 0.750062)
-    if 750 >= pressure_mmhg:
+        if time_of_day not in forecasts_by_time:
+            forecasts_by_time[time_of_day] = forecast
+        else:
+            current_hour = hour
+            existing_hour = int(forecasts_by_time[time_of_day]['dt_txt'].split()[1].split(':')[0])
+
+            if time_of_day == "Утром" and (8 <= current_hour <= 10):
+                forecasts_by_time[time_of_day] = forecast
+            elif time_of_day == "Днём" and (13 <= current_hour <= 15):
+                forecasts_by_time[time_of_day] = forecast
+            elif time_of_day == "Вечером" and (18 <= current_hour <= 20):
+                forecasts_by_time[time_of_day] = forecast
+            elif time_of_day == "Ночью" and (22 <= current_hour <= 23 or 0 <= current_hour <= 2):
+                forecasts_by_time[time_of_day] = forecast
+
+    first_day_forecast = day_forecasts[0] if day_forecasts else data['list'][0]
+    pressure_mmhg = round(first_day_forecast['main']['pressure'] * 0.750062)
+    if pressure_mmhg <= 750:
         pressure_status = "▽"
-    if pressure_mmhg >= 765:
+    elif pressure_mmhg >= 765:
         pressure_status = "△"
     else:
         pressure_status = "♢"
-    wind_direction = get_wind_direction(first_forecast['wind']['deg'])
-    wind_speed = first_forecast['wind']['speed']
+    wind_direction = get_wind_direction(first_day_forecast['wind']['deg'])
+    wind_speed = first_day_forecast['wind']['speed']
     
     return {
+        'date': forecast_date,
         'city_name': city_name,
         'sunrise': sunrise,
         'sunset': sunset,
@@ -63,43 +97,12 @@ def parse_weather_data(data):
         'wind_speed': wind_speed
     }
 
-def format_weather_message(weather_data):
-    if not weather_data:
-        return None
-        
-    message_text = (
-        f"<b>════════✦ ₊ ⊹ {weather_data['current_weather_symbol']} ₊ ⊹ ✦════════</b>\n\n"
-        f"<b>Погода в городе {weather_data['city_name']} на сегодня:</b>\n\n"
-    )
-
-    times_of_day = ['Утром', 'Днём', 'Вечером', 'Ночью']
-    for time in times_of_day:
-        if time in weather_data['forecasts_by_time']:
-            forecast = weather_data['forecasts_by_time'][time]
-            weather_code = forecast['weather'][0]['id'] 
-            symbol = get_weather_symbol(weather_code)
-            temp = round(forecast['main']['temp'])
-            feels_like = round(forecast['main']['feels_like'])
-            description = forecast['weather'][0]['description']
-            
-            message_text += f"✧ {time}:\n      ⋅  {symbol} {description}\n      ⋅  {temp}°C <i>(ощущается как {feels_like}°C)</i>\n"
-
-    message_text += (
-        f"\n"
-        f"✧ Ветер: {weather_data['wind_direction']} {weather_data['wind_speed']} м/с\n"
-        f"✧ Давление: {weather_data['pressure_mmhg']} мм рт.ст. {weather_data['pressure_status']}\n\n"
-        f"✧ Восход солнца: {weather_data['sunrise']}\n"
-        f"✧ Закат солнца: {weather_data['sunset']}\n"
-    )
-    
-    return message_text
-
 def get_time_of_day(hour):
     if 6 <= hour < 12:
         return "Утром"
     elif 12 <= hour < 18:
         return "Днём"
-    elif 18 <= hour < 21:
+    elif 18 <= hour < 24:
         return "Вечером"
     else:
         return "Ночью"

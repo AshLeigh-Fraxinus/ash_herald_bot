@@ -37,3 +37,13 @@ def get_deck_keyboard():
     markup.add(btn5)
     markup.add(btn6)
     return markup
+
+def get_weather_keyboard():
+    markup = types.InlineKeyboardMarkup()
+    btn1 = types.InlineKeyboardButton(text="✧ Погода сегодня", callback_data='weather_today')
+    btn2 = types.InlineKeyboardButton(text="✧ Погода завтра", callback_data='weather_tomorrow')
+    btn3 = types.InlineKeyboardButton(text="☰ Выбрать город", callback_data='change_city')
+    markup.add(btn1)
+    markup.add(btn2)
+    markup.add(btn3)
+    return markup

@@ -1,10 +1,10 @@
 import logging
+from actions.weather import weather_handler
 from service import sessions
 from utils import keyboard, utils, texts
 from actions.moon import moon_day
 from actions.spreads import daily_card, three_cards
 from actions.spreads.deck import choose_deck
-from actions.weather.weather import change_city
 from actions.spreads.add_card import handle_additional_question
 
 logger = logging.getLogger('H.callback_handler')
@@ -30,13 +30,14 @@ class CallbackHandler:
             'persona3_deck': choose_deck.def_deck,
             "change_city": self._handle_change_city,
             "weather_today": self._handle_weather_today,
+            "weather_tomorrow": self._handle_weather_tomorrow
         }
     
     async def handle(self, bot, call):
-        session = await self._get_session(bot, call)
-        logger.debug(f"User: {session.name}, callback: {call.data}")
-        
         try:
+            session = await self._get_session(bot, call)
+            logger.debug(f"User: {session.name}, callback: {call.data}")
+            
             await self._clear_message_markup(bot, call)
             handler = self.handlers.get(call.data)
             
@@ -46,7 +47,7 @@ class CallbackHandler:
                 await self._handle_unknown(bot, call, session)
                 
         except Exception as e:
-            await self._handle_error(bot, call, session, e)
+            await self._handle_error(bot, call, None, e)  # session might be None
     
     async def _get_session(self, bot, call):
         chat_id = await utils.get_chat_id(call)
@@ -89,19 +90,39 @@ class CallbackHandler:
         )
 
     async def _handle_change_city(self, bot, call, session):
-        from actions.weather.weather import change_city
-        await change_city(bot, call, session)
-    
+        await weather_handler.change_city(bot, call, session)
+
     async def _handle_weather_today(self, bot, call, session):
-        from actions.weather.weather import weather_today
-        await weather_today(bot, call, session)
+        """Handle today's weather request"""
+        await weather_handler.weather_today(bot, call, session)
+
+    async def _handle_weather_tomorrow(self, bot, call, session):
+        """Handle tomorrow's weather request"""
+        await weather_handler.weather_tomorrow(bot, call, session)
 
     async def _handle_unknown(self, bot, call, session):
         chat_id = await utils.get_chat_id(call)
-        await bot.send_message(chat_id, texts.UNKNOWN_COMMAND_TEXT, parse_mode="HTML")
+        await bot.send_message(
+            chat_id, 
+            texts.UNKNOWN_COMMAND_TEXT, 
+            parse_mode="HTML",
+            reply_markup=keyboard.get_main_keyboard()  # Guide user back to main menu
+        )
     
     async def _handle_error(self, bot, call, session, error):
-        logger.error(f"User: {session.name}, error: {error}")
-        if "message is not modified" not in str(error):
-            chat_id = await utils.get_chat_id(call)
-            await bot.send_message(chat_id, texts.ERROR_TEXT, parse_mode="HTML")
+        logger.error(f"Callback error for user {getattr(session, 'name', 'unknown')}: {error}")
+        
+        # Don't send error message for "message not modified" errors
+        if "message is not modified" in str(error):
+            return
+            
+        chat_id = await utils.get_chat_id(call)
+        try:
+            await bot.send_message(
+                chat_id, 
+                texts.ERROR_TEXT, 
+                parse_mode="HTML",
+                reply_markup=keyboard.get_main_keyboard()  # Provide navigation option
+            )
+        except Exception as e:
+            logger.error(f"Failed to send error message: {e}")
