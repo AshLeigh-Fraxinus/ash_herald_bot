@@ -6,7 +6,7 @@ from actions.spreads.deck.deck import draw_cards
 from actions.spreads.interpretation import get_interpretation
 import utils.utils as utils
 
-logger = logging.getLogger('THREE_CARDS')
+logger = logging.getLogger('H.three_cards')
 
 async def three_cards(bot, call, session):
     chat_id = await utils.get_chat_id(call)

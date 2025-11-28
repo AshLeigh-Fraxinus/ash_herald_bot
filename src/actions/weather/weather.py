@@ -4,7 +4,7 @@ import utils.utils as utils
 from actions.weather.location import request_city, validate_city, get_city_from_session, reset_city
 from actions.weather.weather_service import get_weather_data, parse_weather_data, format_weather_message, create_weather_keyboard
 
-logger = logging.getLogger('WEATHER')
+logger = logging.getLogger('H.weather')
 
 async def weather_today(bot, call, session):
     chat_id = await utils.get_chat_id(call)
@@ -42,7 +42,7 @@ async def handle_city_input(bot, message, session):
     if success:
         await bot.send_message(
             await utils.get_chat_id(message),
-            f"🌆 <i>Город успешно изменен на</i> <b>{city_name}</b>",
+            f"☰ <i>Город успешно изменен на</i> <b>{city_name}</b>",
             parse_mode="HTML"
         )
         await asyncio.sleep(1)

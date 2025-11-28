@@ -1,7 +1,7 @@
 import random
 import logging
 
-logger = logging.getLogger('DECK')
+logger = logging.getLogger('H.deck')
 
 TAROT_CARDS = [
     # Старшие арканы

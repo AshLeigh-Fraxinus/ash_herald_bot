@@ -13,7 +13,7 @@ class ApplicationState:
 
 class TelegramBot:
     def __init__(self):
-        self.logger = logging.getLogger('BOT')
+        self.logger = logging.getLogger('H.Bot')
         self.state = ApplicationState()
         self.bot = self.configure_bot()
         self.setup_handlers()

@@ -2,7 +2,7 @@ import datetime, json, logging
 from utils import utils
 from service.database import db_manager
 
-logger = logging.getLogger('SESSIONS')
+logger = logging.getLogger('H.sessions')
 
 class Session:
     def __init__(self, chat_id: str, user_data: dict):

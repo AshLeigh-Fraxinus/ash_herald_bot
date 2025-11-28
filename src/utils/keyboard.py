@@ -14,7 +14,7 @@ def get_cards_keyboard():
     markup = types.InlineKeyboardMarkup()
     btn1 = types.InlineKeyboardButton(text="✧ Карта дня", callback_data='daily_card')
     btn2 = types.InlineKeyboardButton(text="✧ Три лика судьбы", callback_data='three_cards')
-    btn3 = types.InlineKeyboardButton(text="✥ Выбрать колоду", callback_data='choose_deck')
+    btn3 = types.InlineKeyboardButton(text="🂠 Выбрать колоду", callback_data='choose_deck')
     btn4 = types.InlineKeyboardButton(text="⛧ К истокам", callback_data='thanks')
     markup.add(btn1)
     markup.add(btn2)

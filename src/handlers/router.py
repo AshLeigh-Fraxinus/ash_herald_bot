@@ -2,7 +2,7 @@ import logging
 from handlers.text_handler import TextHandler
 from handlers.callback_handler import CallbackHandler
 
-logger = logging.getLogger('ROUTER')
+logger = logging.getLogger('H.router')
 
 class Router:
     def __init__(self):

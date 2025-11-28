@@ -7,7 +7,7 @@ from actions.spreads.deck import choose_deck
 from actions.weather.weather import change_city
 from actions.spreads.add_card import handle_additional_question
 
-logger = logging.getLogger('CALLBACK_HANDLER')
+logger = logging.getLogger('H.callback_handler')
 
 class CallbackHandler:
     def __init__(self):

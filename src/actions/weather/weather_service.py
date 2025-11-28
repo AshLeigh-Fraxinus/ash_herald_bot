@@ -1,7 +1,7 @@
 import os, datetime, requests, logging
 from telebot import types
 
-logger = logging.getLogger('WEATHER')
+logger = logging.getLogger('H.weather')
 
 def get_weather_data(city):
     base_url = os.getenv("WEATHER_API_URL")
@@ -82,7 +82,7 @@ def format_weather_message(weather_data):
             feels_like = round(forecast['main']['feels_like'])
             description = forecast['weather'][0]['description']
             
-            message_text += f"✧ {time}:\n       ⋅  {symbol} {description}\n       ⋅  {temp}°C <i>(ощущается как {feels_like}°C)</i>\n"
+            message_text += f"✧ {time}:\n      ⋅  {symbol} {description}\n      ⋅  {temp}°C <i>(ощущается как {feels_like}°C)</i>\n"
 
     message_text += (
         f"\n"
@@ -143,7 +143,7 @@ def create_weather_keyboard(include_change_city=True):
 
     if include_change_city:
         markup = types.InlineKeyboardMarkup()
-        btn1 = types.InlineKeyboardButton("🌆 Сменить город", callback_data="change_city")
+        btn1 = types.InlineKeyboardButton("☰ Сменить город", callback_data="change_city")
         btn2 = types.InlineKeyboardButton("⛧ К истокам", callback_data="thanks")
         markup.add(btn1, btn2)
     else:
