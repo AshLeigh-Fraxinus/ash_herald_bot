@@ -2,10 +2,10 @@ import os, time, asyncio, logging, signal
 
 from telebot.async_telebot import AsyncTeleBot
 from service.database import db_manager
-from handlers.router import Router
 from dotenv import load_dotenv
 
-router = Router()
+# Импортируем Router из handlers
+from handlers.router import Router
 
 class ApplicationState:
     def __init__(self):
@@ -16,6 +16,7 @@ class TelegramBot:
         self.logger = logging.getLogger('H.Bot')
         self.state = ApplicationState()
         self.bot = self.configure_bot()
+        self.router = Router()  # Создаем экземпляр Router
         self.setup_handlers()
     
     def configure_bot(self):
@@ -29,11 +30,11 @@ class TelegramBot:
     def setup_handlers(self):
         @self.bot.message_handler(content_types=['text'])
         async def handle_text_messages(message):
-            await router.route_message(self.bot, message)
+            await self.router.route_message(self.bot, message)
 
         @self.bot.callback_query_handler(func=lambda call: True)
         async def handle_callback(call):
-            await router.route_callback(self.bot, call)
+            await self.router.route_callback(self.bot, call)
 
     def signal_handler(self, signum, frame):
         self.logger.info("Herald shutting down gracefully...")

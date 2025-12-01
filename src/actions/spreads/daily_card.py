@@ -65,7 +65,7 @@ async def daily_card(bot, call, session):
     try:
         card_emoji = "⛤" if card['position'] == 'upright' else "⛧"
         message_text = (
-            f"{card_emoji} <b>{card_name}</b> ⋄ <i>{card_position}</i>\n\n"
+            f"{card_emoji} <b>{card_name}</b>\n⋄ <i>{card_position}</i>\n\n"
             "⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ \n\n"
             f"{meaning}")
 
