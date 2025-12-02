@@ -80,15 +80,28 @@ class Session:
         self._is_waiting_for_question = value
         self._save_to_db()
 
-    def can_draw_daily_card(self) -> bool:
-        if self.last_daily_card_date is None:
-            return True
+    def get_session_info(self) -> dict:
+        return {
+            'name': self.name,
+            'state': self.state,
+            'deck': self.deck,
+            'has_daily_card': not self.can_draw_daily_card(),
+            'created': self.created_at.strftime("%Y-%m-%d %H:%M") if self.created_at else "N/A",
+            'last_activity': self.last_activity.strftime("%Y-%m-%d %H:%M") if self.last_activity else "N/A"
+        }
 
-        today = datetime.date.today()
+    def update_activity(self):
+        self.last_activity = datetime.datetime.now()
+        self._save_to_db()
+
+    def can_draw_daily_card(self) -> bool:
+        if self.last_daily_card_date is None: return True
+
         last_date = self.last_daily_card_date.date() if isinstance(self.last_daily_card_date, datetime.datetime) else self.last_daily_card_date
 
+        today = datetime.date.today()
         can_draw = last_date < today
-        logger.debug(f"{self.name} has already requested daily card today") if not can_draw else logger.debug(f"{self.name} can request daily card")
+        logger.debug(f'"{self.name}" already received daily card today"') if not can_draw else logger.debug(f'"{self.name}" can request daily card"')
 
         return can_draw
 
@@ -96,11 +109,7 @@ class Session:
         self.last_daily_card_date = datetime.datetime.now()
         self.update_activity()
         self._save_to_db()
-        logger.debug(f"User: {self.name}, daily_card marked for today")
-
-    def update_activity(self):
-        self.last_activity = datetime.datetime.now()
-        self._save_to_db()
+        logger.debug(f'"{self.name}" received daily_card for today')
 
     def update_session_data(self, data=None, messages=None):
         if data is not None:
@@ -118,17 +127,7 @@ class Session:
         self.update_activity()
         self._save_to_db()
 
-        logger.debug(f"✥ Путь перезапущен для: {self.name} (из состояния: {old_state})")
-
-    def get_session_info(self) -> dict:
-        return {
-            'name': self.name,
-            'state': self.state,
-            'deck': self.deck,
-            'has_daily_card': not self.can_draw_daily_card(),
-            'created': self.created_at.strftime("%Y-%m-%d %H:%M") if self.created_at else "N/A",
-            'last_activity': self.last_activity.strftime("%Y-%m-%d %H:%M") if self.last_activity else "N/A"
-        }
+        logger.debug(f'"{self.name}" session reset from "{old_state}"')
 
     def _save_to_db(self):
         db_manager.update_user(
@@ -155,13 +154,9 @@ class SessionManager:
         user_data = self.db_manager.get_user(chat_id)
         
         if not user_data:
-            username, first_name, last_name = "", "", ""
-            if name and isinstance(name, tuple):
-                username, first_name, last_name = name
-            elif name:
-                first_name = name
-                
+            username, first_name, last_name = ("", "", "") if not name else name
             display_name = utils.get_clean_name(username, first_name, last_name) or f"user_{chat_id}"
+                
             user_data = self.db_manager.create_user(
                 chat_id, 
                 name=display_name,
@@ -179,6 +174,8 @@ class SessionManager:
         self.db_manager.reset_session(chat_id)
 
     def get_name(self, chat_id: str, name_tuple: tuple) -> str:
+        if name_tuple is None: name_tuple = ("", "", "")
+        
         username, first_name, last_name = name_tuple
         user_data = self.db_manager.get_user(chat_id)
         

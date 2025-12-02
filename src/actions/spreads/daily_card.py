@@ -23,7 +23,7 @@ async def daily_card(bot, call, session):
             parse_mode="HTML",
             reply_markup=markup
         )
-        logger.debug(f"User: {session.name}, daily_card limit reached for today")
+        logger.debug(f'"{session.name}" reched daily_card limit for today"')
         return
 
     deck = session.deck 
@@ -35,7 +35,7 @@ async def daily_card(bot, call, session):
 
     cards = await draw_cards(deck, 1)  
     card = cards[0]
-    logger.debug(f"User: {session.name}, Deck: {deck}, Cards: {card['number']}: {card['name']} - {card['position']}") 
+    logger.debug(f'"{session.name}", Deck: "{deck}", Cards: "{card['number']}": "{card['name']} - {card['position']}"') 
 
     session.mark_daily_card_drawn()
 
@@ -44,23 +44,23 @@ async def daily_card(bot, call, session):
     card_position = "прямое положение" if card['position'] == 'upright' else "перевёрнутое положение"
 
     meaning = await get_interpretation(question, cards)
-    logger.debug(f'User: {session.name}: meaning received: "{utils.no_newline(meaning)}"')
+    logger.debug(f'"{session.name}" received daily_card meaning: "{utils.no_newline(meaning)}"')
 
     sticker_path = f"resources/{deck}_deck/{card_id}_{card['position']}.webp"
     try:
         with open(sticker_path, "rb") as sticker:
             await bot.send_sticker(chat_id, sticker)
-            logger.debug(f"User: {session.name}, action: {sticker_path} sent")
+            logger.debug(f'"{session.name}", sticker sent: "{sticker_path}"')
     except FileNotFoundError:
-        logger.error(f"User: {session.name}, action: no sticker in {sticker_path}")
+        logger.error(f'"{session.name}", no sticker in "{sticker_path}"')
 
         fallback_path = f"resources/tarot_deck/{card_id}_{card['position']}.webp"
         try:
             with open(fallback_path, "rb") as sticker:
                 await bot.send_sticker(chat_id, sticker)
-                logger.warning(f"User: {session.name}, action: fallback {fallback_path} sent")
+                logger.warning(f'"{session.name}", fallback sticker sent:"{fallback_path}"')
         except FileNotFoundError:
-            logger.error(f"User: {session.name}, action: no fallback sticker in {fallback_path}")
+            logger.error(f'"{session.name}", no fallback sticker in "{fallback_path}"')
 
     try:
         card_emoji = "⛤" if card['position'] == 'upright' else "⛧"
@@ -81,9 +81,9 @@ async def daily_card(bot, call, session):
         except:
             pass
 
-        logger.info(f"User: {session.name}, action: daily_card sent")
+        logger.info(f'"{session.name}" received daily_card')
         session.state = "waiting_for_additional_question"
 
     except Exception as e:
-        logger.error(f"User: {session.name}: {str(e)}")
+        logger.error(f'"{session.name}" got error: "{str(e)}"')
         await bot.send_message(chat_id, texts.ERROR_TEXT, parse_mode="HTML")

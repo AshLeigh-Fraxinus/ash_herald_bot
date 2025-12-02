@@ -23,7 +23,7 @@ class DatabaseManager:
                 return result[0] if result else None
                 
         except Exception as e:
-            logger.error(f"Database error for card {card_name}: {e}")
+            logger.error(f'"Database error for card "{card_name}": "{e}"')
             return None
 
     def get_fallback_interpretation(self):
@@ -42,5 +42,5 @@ class DatabaseManager:
                 return "Карты пока хранят молчание. Попробуйте задать вопрос позже."
                 
         except Exception as e:
-            logger.error(f"Fallback interpretation error: {e}")
+            logger.error(f'Fallback interpretation error: "{e}"')
             return "Внутренняя ошибка при обращении к картам."

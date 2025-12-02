@@ -36,7 +36,7 @@ async def make_llm_request(question, cards_description):
             return interpretation
 
         except Exception as e:
-            logger.error(f"Attempt {attempt + 1} failed with error: {e}")
+            logger.error(f'Attempt _{attempt + 1}_ failed with error: "{e}"')
             if attempt < 2:
                 time.sleep(2)
                 continue

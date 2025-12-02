@@ -5,11 +5,7 @@ def format_weather_message(weather_data, period="today"):
     if not weather_data:
         return None
         
-    day_names = {
-        "today": "сегодня",
-        "tomorrow": "завтра"
-    }
-    
+    day_names = {"today": "сегодня", "tomorrow": "завтра"}
     date_str = weather_data['date'].strftime('%d.%m')
     
     message_text = (
@@ -36,7 +32,6 @@ def format_weather_message(weather_data, period="today"):
         f"✧ Восход солнца: {weather_data['sunrise']}\n"
         f"✧ Закат солнца: {weather_data['sunset']}\n"
     )
-    
     return message_text
 
 def create_weather_keyboard(include_change_city=True, include_tomorrow=True):

@@ -26,7 +26,7 @@ async def three_cards(bot, call, session):
         parse_mode="HTML"
     )
 
-    logger.debug(f"User: {session.name}, session: waiting_for_three_cards_question")
+    logger.debug(f'"{session.name}", session: "{session.state}"')
 
 async def handle_three_cards_question(bot, message, session):
     chat_id = await utils.get_chat_id(message)
@@ -34,7 +34,7 @@ async def handle_three_cards_question(bot, message, session):
     deck = session.deck
 
     if not deck or not isinstance(deck, str):
-        logger.warning(f"User: {session.name}, invalid deck: {deck}, using default 'tarot'")
+        logger.warning(f'"{session.name}", invalid deck: "{deck}", using default "tarot"')
         deck = 'tarot'
         session.deck = deck
 
@@ -56,12 +56,12 @@ async def handle_three_cards_question(bot, message, session):
         card_lines.append(card_line)
 
     cards_text = "\n".join(card_lines)
-    logger.debug(f'User: {session.name}, Deck: {deck}, Question: "{utils.no_newline(user_question)}", [Cards]: {cards}')
+    logger.debug(f'"{session.name}", Deck: "{deck}", Question: "{utils.no_newline(user_question)}", [Cards]: "{cards}"')
 
     try:
         full_question = f"Вопрос: {user_question}. Карты: {cards}"
         meaning = await get_interpretation(full_question, cards)
-        logger.debug(f'User: {session.name}, meaning received: "{utils.no_newline(meaning)}"')
+        logger.debug(f'"{session.name}" received meaning: "{utils.no_newline(meaning)}"')
 
         session.data["previous_question"] = user_question
         session.data["previous_cards"] = cards
@@ -69,7 +69,7 @@ async def handle_three_cards_question(bot, message, session):
         session.state = "waiting_for_additional_question"
         
     except Exception as e:
-        logger.error(f"User: {session.name}, {str(e)}")
+        logger.error(f'"{session.name}" got error: "{str(e)}"')
         meaning = "<b>🜏 Символы остались безмолвны...</b> Попробуй позже."
 
     await bot.send_message(
@@ -117,7 +117,7 @@ async def handle_three_cards_question(bot, message, session):
         else:
             await bot.send_message(chat_id, message_text, parse_mode="HTML", reply_markup=markup)
             
-        logger.info(f"User: {session.name}, action: three_cards sent with collage")
+        logger.info(f'"{session.name}" received three_cards with collage')
         session.state = "waiting_for_additional_question"
 
     except Exception as e:
@@ -152,7 +152,7 @@ async def create_cards_collage(cards, deck):
                 
             images.append(img)
         except Exception as e:
-            logger.error(f"Error loading image {image_path}: {e}")
+            logger.error(f'Error loading image "{image_path}": "{e}"')
             continue
     
     if len(images) != 3:

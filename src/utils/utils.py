@@ -34,13 +34,13 @@ async def get_chat_id(message):
     for source in sources:
         if source and hasattr(source, 'id') and source.id:
             return str(source.id)
-    logger.error(f'Unable to get chat_id from: {message}')
+    logger.error(f'Unable to get chat_id from: "{message}"')
     return ""
 
 def get_text(message):
     if message and hasattr(message, 'text') and message.text:
         return str(message.text)
-    logger.error(f'Unable to get text from: {message}')
+    logger.error(f'Unable to get text from: "{message}"')
     return ""
 
 def get_clean_name(username, first_name, last_name):

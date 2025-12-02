@@ -50,7 +50,7 @@ async def moon_day(bot, call, session):
             markup.add(btn1)
 
             await bot.send_message(chat_id, message_text, parse_mode="HTML", reply_markup=markup)
-            logger.info(f"User: {session.name}, action: moon_day sent")
+            logger.info(f'"{session.name}" received: "moon_day"')
 
             try:
                 await bot.delete_message(chat_id, loading_msg1.message_id)
@@ -59,7 +59,7 @@ async def moon_day(bot, call, session):
                 pass
                 
         else:
-            logger.error(f"User: {session.name}, API error {response.status_code}")
+            logger.error(f'"{session.name}" got API error "{response.status_code}"')
             await bot.send_message(
                 chat_id, 
                 "⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ 🜏 ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ \n"
@@ -69,7 +69,7 @@ async def moon_day(bot, call, session):
             )
             
     except Exception as e:
-        logger.error(f"User: {session.name}, error in moon_day: {e}")
+        logger.error(f'"{session.name}" got error in moon_day: "{e}"')
         await bot.send_message(
             chat_id, 
             "⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ 🜏 ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ \n"

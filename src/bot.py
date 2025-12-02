@@ -4,7 +4,6 @@ from telebot.async_telebot import AsyncTeleBot
 from service.database import db_manager
 from dotenv import load_dotenv
 
-# Импортируем Router из handlers
 from handlers.router import Router
 
 class ApplicationState:
@@ -16,7 +15,7 @@ class TelegramBot:
         self.logger = logging.getLogger('H.Bot')
         self.state = ApplicationState()
         self.bot = self.configure_bot()
-        self.router = Router()  # Создаем экземпляр Router
+        self.router = Router()
         self.setup_handlers()
     
     def configure_bot(self):

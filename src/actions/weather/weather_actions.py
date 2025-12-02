@@ -20,9 +20,11 @@ async def handle_weather_request(bot, call, session, period):
     
     city = get_city_from_session(session)
     if not city:
+        logger.info(f'"{session.name}" has no city set, requesting the city')
         await request_city(bot, call, session)
         return
-
+    logger.info(f'"{session.name}" has city set: "{city}')
+    
     cnt = 16 if period == "tomorrow" else 8
     data = get_weather_data(city, cnt=str(cnt))
     if not data:
@@ -39,7 +41,7 @@ async def handle_weather_request(bot, call, session, period):
     markup = create_weather_keyboard(include_change_city=True, include_tomorrow=(period == "today"))
     await bot.send_message(chat_id, message_text, parse_mode="HTML", reply_markup=markup)
 
-    logger.info(f"User: {session.name}, action: weather_{period} sent")
+    logger.info(f'"{session.name}" received "weather_{period}"')
 
 async def handle_city_input(bot, message, session):
     success, city_name = await validate_city(bot, message, session)
@@ -59,7 +61,6 @@ async def handle_city_input(bot, message, session):
 async def change_city(bot, call, session):
     session.state = "waiting_for_city"
     await request_city(bot, call, session, change_city=True)
-    logger.info(f"User: {session.name}, initiating city change")
 
 async def send_weather_error(bot, chat_id, user_name):
     logger.error(f"User: {user_name}, error in weather request")

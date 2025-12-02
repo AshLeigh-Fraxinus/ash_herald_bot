@@ -24,7 +24,7 @@ async def request_city(bot, call, session, change_city=False):
         )
     
     await bot.send_message(chat_id, message_text, parse_mode="HTML")
-    logger.debug(f"User: {session.name}, session: waiting_for_city, change_city: {change_city}")
+    logger.debug(f'"{session.name}", session set: "{session.state}", is changing city: "{change_city}"')
 
 async def validate_city(bot, message, session):
     chat_id = await utils.get_chat_id(message)
@@ -43,7 +43,7 @@ async def validate_city(bot, message, session):
         city_name = data['city']['name']
         session.state = "main"
         session.city = city
-        logger.info(f"User: {session.name}, city set to: {city}")
+        logger.info(f'"{session.name}" new city: "{city}"')
         return True, city_name
     else: 
         await bot.send_message(
@@ -55,7 +55,7 @@ async def validate_city(bot, message, session):
             "<b>Например: Saint Petersburg</b>",
             parse_mode="HTML"
         )
-        logger.debug(f"User: {session.name}, invalid city: {raw_city}")
+        logger.debug(f'"{session.name}" sent invalid city: "{raw_city}"')
         return False
 
 def get_city_from_session(session):
@@ -65,4 +65,4 @@ async def reset_city(session):
     old_city = session.city
     session.city = ""
     session.state = "main"
-    logger.info(f"User: {session.name}, city reset from '{old_city}'")
+    logger.info(f'"{session.name}"reset city "{old_city}"')

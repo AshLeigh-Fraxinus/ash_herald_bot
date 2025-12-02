@@ -181,6 +181,6 @@ class DatabaseManager:
             deleted_count = cursor.rowcount
             
             conn.commit()
-        logger.debug(f"Reset {deleted_count} inactive sessions: {', '.join(inactive_users)}") if inactive_users else logger.debug("No inactive sessions to clean up")
+        logger.debug(f'Reset "{deleted_count}" inactive sessions: "{', '.join(inactive_users)}"') if inactive_users else logger.debug("No inactive sessions to clean up")
 
 db_manager = DatabaseManager()

@@ -44,7 +44,7 @@ async def handle_additional_question(bot, message, session):
     cards = await draw_cards(deck, 1)
     card = cards[0]
 
-    logger.debug(f"User: {session.name}, Deck: {deck}, Additional Card: {card['number']}: {card['name']} - {card['position']}")
+    logger.debug(f'"{session.name}", Deck: "{deck}", Additional Card: "{card['number']}": "{card['name']} - {card['position']}"')
 
     card_id = card['number']
     sticker_path = f"resources/{deck}_deck/{card_id}_{card['position']}.webp"
@@ -53,34 +53,34 @@ async def handle_additional_question(bot, message, session):
     try:
         with open(sticker_path, "rb") as sticker:
             await bot.send_sticker(chat_id, sticker)
-            logger.info(f"User: {session.name}, action: {sticker_path} sent")
+            logger.info(f'"{session.name}", "{sticker_path}" sent')
     except FileNotFoundError:
-        logger.error(f"User: {session.name}, action: no sticker in {sticker_path}")
+        logger.error(f'"{session.name}", got error: no sticker in "{sticker_path}"')
         fallback_path = f"resources/tarot_deck/{card_id}_{card['position']}.webp"
         try:
             with open(fallback_path, "rb") as sticker:
                 await bot.send_sticker(chat_id, sticker)
-                logger.warning(f"User: {session.name}, action: fallback {fallback_path} sent")
+                logger.warning(f'"{session.name}", fallback {fallback_path} sent"')
         except FileNotFoundError:
-            logger.error(f"User: {session.name}, action: no fallback sticker in {fallback_path}")
+            logger.error(f'"{session.name}", no fallback sticker in {fallback_path}"')
                 
     position = "прямое положение" if card["position"] == "upright" else "перевёрнутое положение"
     card_emoji = "⛤" if card['position'] == 'upright' else "⛧"
     cards_text = f"{card_emoji} <b>{card['name']}</b> ⋄ <i>{position}</i>"
     
     if user_question:
-        logger.debug(f'User: {session.name}, Additional Question: "{utils.no_newline(user_question)}", [Card]: {card}')
+        logger.debug(f'"{session.name}", Additional Question: "{utils.no_newline(user_question)}", [Card]: "{card}"')
     else:
-        logger.debug(f'User: {session.name}, Clarification without new question, [Card]: {card}')
+        logger.debug(f'"{session.name}", Clarification without new question, [Card]: "{card}"')
 
     try:
         full_question = full_question_context + f" Дополнительная карта: {card}."
 
         meaning = await get_interpretation(full_question, cards)
-        logger.debug(f'User: {session.name}, additional meaning received: "{utils.no_newline(meaning)}"')
+        logger.debug(f'"{session.name}", additional meaning received: "{utils.no_newline(meaning)}"')
         
     except Exception as e:
-        logger.error(f"User: {session.name}, {str(e)}")
+        logger.error(f'"{session.name}" got error: "{str(e)}"')
         meaning = (
             "⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ 🜏 ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ \n"
             "       <b>Символы остались безмолвны...</b>\n"
@@ -96,7 +96,7 @@ async def handle_additional_question(bot, message, session):
 
     try:
         await bot.send_message(chat_id, message_text, parse_mode="HTML", reply_markup=markup)
-        logger.info(f"User: {session.name}, action: additional_card sent")
+        logger.info(f'"{session.name}" received "additional_card"')
         session.state = "waiting_for_additional_question"
 
     except Exception as e:

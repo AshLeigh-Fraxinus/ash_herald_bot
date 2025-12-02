@@ -14,10 +14,10 @@ def get_weather_data(city, cnt):
         if response.status_code == 200:
             return response.json()
         else:
-            logger.error(f"API error {response.status_code} for city: {city}")
+            logger.error(f'API error "{response.status_code}" for city: "{city}"')
             return None
     except Exception as e:
-        logger.error(f"Error fetching weather data: {e}")
+        logger.error(f'Error fetching weather data: "{e}"')
         return None
 
 def parse_weather_data(data, target_day=0):
