@@ -5,16 +5,18 @@ def get_main_keyboard():
     btn1 = types.InlineKeyboardButton(text="🂠 Обратиться к картам", callback_data='cards_spread')
     btn2 = types.InlineKeyboardButton(text="☽ Обратиться к луне", callback_data='moon_day')
     btn3 = types.InlineKeyboardButton(text="✧ Погода на сегодня", callback_data='weather_today')
+    btn4 = types.InlineKeyboardButton(text="☰ Изменить пути", callback_data='settings')
     markup.add(btn1)
     markup.add(btn2)
     markup.add(btn3)
+    markup.add(btn4)
     return markup
 
 def get_cards_keyboard():
     markup = types.InlineKeyboardMarkup()
     btn1 = types.InlineKeyboardButton(text="✧ Карта дня", callback_data='daily_card')
     btn2 = types.InlineKeyboardButton(text="✧ Три лика судьбы", callback_data='three_cards')
-    btn3 = types.InlineKeyboardButton(text="🂠 Выбрать колоду", callback_data='choose_deck')
+    btn3 = types.InlineKeyboardButton(text="🂠 Выбрать колоду", callback_data='change_deck')
     btn4 = types.InlineKeyboardButton(text="⛧ К истокам", callback_data='thanks')
     markup.add(btn1)
     markup.add(btn2)
@@ -24,11 +26,11 @@ def get_cards_keyboard():
 
 def get_deck_keyboard():
     markup = types.InlineKeyboardMarkup()
-    btn1 = types.InlineKeyboardButton(text="✧ Классическое Таро", callback_data='tarot_deck')
-    btn2 = types.InlineKeyboardButton(text="✧ Таро Безумной Луны", callback_data='deviant_moon_deck')
-    btn3 = types.InlineKeyboardButton(text="✧ Таро Святой Смерти", callback_data='santa_muerte_deck')
-    btn4 = types.InlineKeyboardButton(text="✧ Персона 3", callback_data='persona3_deck')
-    btn5 = types.InlineKeyboardButton(text="✦ Оракул Ленорман", callback_data='lenorman_deck')
+    btn1 = types.InlineKeyboardButton(text="✧ Классическое Таро", callback_data='deck_tarot')
+    btn2 = types.InlineKeyboardButton(text="✧ Таро Безумной Луны", callback_data='deck_deviant_moon')
+    btn3 = types.InlineKeyboardButton(text="✧ Таро Святой Смерти", callback_data='deck_santa_muerte')
+    btn4 = types.InlineKeyboardButton(text="✧ Персона 3", callback_data='deck_persona3')
+    btn5 = types.InlineKeyboardButton(text="✦ Оракул Ленорман", callback_data='deck_lenorman')
     btn6 = types.InlineKeyboardButton(text="⛧ Обернуться", callback_data='cards_spread')
     markup.add(btn1)
     markup.add(btn2)
@@ -42,6 +44,16 @@ def get_weather_keyboard():
     markup = types.InlineKeyboardMarkup()
     btn1 = types.InlineKeyboardButton(text="✧ Погода сегодня", callback_data='weather_today')
     btn2 = types.InlineKeyboardButton(text="✧ Погода завтра", callback_data='weather_tomorrow')
+    btn3 = types.InlineKeyboardButton(text="☰ Выбрать город", callback_data='change_city')
+    markup.add(btn1)
+    markup.add(btn2)
+    markup.add(btn3)
+    return markup
+
+def get_settings_keyboard():
+    markup = types.InlineKeyboardMarkup()
+    btn1 = types.InlineKeyboardButton(text="✧ Изменить имя", callback_data='change_name')
+    btn2 = types.InlineKeyboardButton(text="🂠 Выбрать колоду", callback_data='change_deck')
     btn3 = types.InlineKeyboardButton(text="☰ Выбрать город", callback_data='change_city')
     markup.add(btn1)
     markup.add(btn2)

@@ -87,7 +87,7 @@ ash_herald/
 │   │   │   └── spreads/
 │   │   │   │   ├── deck/
 │   │   │   │   │   ├── deck.py
-│   │   │   │   │   └── choose_deck.py
+│   │   │   │   │   └── change_deck.py
 │   │   │   │   ├── interpretation.py
 │   │   │   │   ├── add_card.py
 │   │   │   │   ├── daily_card.py

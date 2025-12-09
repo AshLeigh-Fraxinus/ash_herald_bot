@@ -56,7 +56,7 @@ async def handle_additional_question(bot, message, session):
             logger.info(f'"{session.name}", "{sticker_path}" sent')
     except FileNotFoundError:
         logger.error(f'"{session.name}", got error: no sticker in "{sticker_path}"')
-        fallback_path = f"resources/tarot_deck/{card_id}_{card['position']}.webp"
+        fallback_path = f"resources/deck_tarot/{card_id}_{card['position']}.webp"
         try:
             with open(fallback_path, "rb") as sticker:
                 await bot.send_sticker(chat_id, sticker)

@@ -1,5 +1,6 @@
 import logging
 from telebot import types
+from actions.settings.settings_handler import handle_change_name, handle_new_name, handle_settings
 from service.sessions import session_manager
 from actions.weather.weather_actions import (
     weather_today, 
@@ -13,7 +14,7 @@ from actions.spreads.three_cards import (
 )
 from actions.spreads.daily_card import daily_card
 from actions.spreads.add_card import handle_additional_question
-from actions.spreads.deck.choose_deck import choose_deck, def_deck 
+from actions.spreads.deck.change_deck import change_deck, def_deck 
 from actions.moon.moon_day import moon_day
 from utils.keyboard import (
     get_main_keyboard, 
@@ -136,10 +137,16 @@ async def route_callback(bot, call):
             session.state = "waiting_for_additional_question"
             await handle_additional_question(bot, call, session)
             
-        elif callback_data == "choose_deck":
-            await choose_deck(bot, call, session)
+        elif callback_data == "change_deck":
+            await change_deck(bot, call, session)
+        
+        elif callback_data == "settings":
+            await handle_settings(bot, call, session)
+
+        elif callback_data == "change_name":
+            await handle_change_name(bot, call, session)
             
-        elif callback_data in ["tarot_deck", "deviant_moon_deck", "santa_muerte_deck", "persona3_deck", "lenorman_deck"]:
+        elif callback_data in ["deck_tarot", "deck_deviant_moon", "deck_santa_muerte", "deck_persona3", "deck_lenorman"]:
             await def_deck(bot, call, session)
             
         elif callback_data == "thanks":
@@ -176,6 +183,9 @@ async def route_message(bot, message):
             
         elif session.state == "waiting_for_additional_question":
             await handle_additional_question(bot, message, session)
+        
+        elif session.state == "choosing_name":
+            await handle_new_name(bot, message, session)
             
         else:
             markup = get_main_keyboard()

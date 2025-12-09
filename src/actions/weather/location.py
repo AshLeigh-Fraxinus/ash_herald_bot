@@ -58,11 +58,16 @@ async def validate_city(bot, message, session):
         logger.debug(f'"{session.name}" sent invalid city: "{raw_city}"')
         return False
 
-def get_city_from_session(session):
-    return session.city if session.city != "" else None
-
-async def reset_city(session):
-    old_city = session.city
-    session.city = ""
-    session.state = "main"
-    logger.info(f'"{session.name}"reset city "{old_city}"')
+async def get_city_name(session):
+    city = session.city
+    base_url = os.getenv("WEATHER_API_URL")
+    key = os.getenv("WEATHER_API_KEY")
+    url = base_url + city + "&appid=" + key
+    response = requests.get(url)
+    data = response.json()
+    
+    if response.status_code == 200: 
+        city_name = data['city']['name']
+        return city_name
+    else:
+        return city

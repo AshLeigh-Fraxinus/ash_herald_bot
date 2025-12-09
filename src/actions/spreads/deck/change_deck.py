@@ -2,9 +2,9 @@ import logging
 import utils.utils as utils
 import utils.keyboard as keyboard
 
-logger = logging.getLogger('H.choose_deck')
+logger = logging.getLogger('H.change_deck')
 
-async def choose_deck(bot, call, session):
+async def change_deck(bot, call, session):
     chat_id = await utils.get_chat_id(call)
     session.state = "choosing_deck"
     logger.debug(f'"{session.name}" is now "{session.state}"')
@@ -22,23 +22,23 @@ async def def_deck(bot, call, session):
     
     try:
         deck_display = ""
-        if call.data in ('tarot_deck', '/tarot_deck'):
+        if call.data in ('deck_tarot', '/deck_tarot'):
             session.deck = 'tarot'
             deck_display = "Таро"
 
-        elif call.data in ('deviant_moon_deck', '/deviant_moon_deck'):
+        elif call.data in ('deck_deviant_moon', '/deck_deviant_moon'):
             session.deck = 'deviant_moon'
             deck_display = "Безумной луны"
 
-        elif call.data in ('santa_muerte_deck', '/santa_muerte_deck'):
+        elif call.data in ('deck_santa_muerte', '/deck_santa_muerte'):
             session.deck = 'santa_muerte'
             deck_display = "Святой смерти"
 
-        elif call.data in ('lenorman_deck', '/lenorman_deck'):
+        elif call.data in ('deck_lenorman', '/deck_lenorman'):
             session.deck = 'lenorman'
             deck_display = "Ленорман"
 
-        elif call.data in ('persona3_deck', '/persona3_deck'):
+        elif call.data in ('deck_persona3', '/deck_persona3'):
             session.deck = 'persona3'
             deck_display = "Персона 3"
         else:

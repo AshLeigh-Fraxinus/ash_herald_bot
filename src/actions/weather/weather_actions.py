@@ -1,6 +1,6 @@
 import asyncio, logging
 import utils.utils as utils
-from .location import request_city, validate_city, get_city_from_session
+from .location import request_city, validate_city
 from actions.weather.weather_service import get_weather_data, parse_weather_data
 from .forecast import format_weather_message, create_weather_keyboard
 
@@ -18,7 +18,7 @@ async def handle_weather_request(bot, call, session, period):
     if session.state == "waiting_for_city":
         session.state = "main"
     
-    city = get_city_from_session(session)
+    city =  session.city if session.city != "" else None
     if not city:
         logger.info(f'"{session.name}" has no city set, requesting the city')
         await request_city(bot, call, session)

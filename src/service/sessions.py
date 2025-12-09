@@ -44,6 +44,11 @@ class Session:
     def name(self):
         return self._name
 
+    @name.setter
+    def name(self, value):
+        self._name = value
+        self._save_to_db()
+
     @property
     def state(self):
         return self._state
@@ -133,6 +138,7 @@ class Session:
         db_manager.update_user(
             self.chat_id,
             state=self.state,
+            name=self.name,
             deck=self.deck,
             city=self.city,
             last_daily_card_date=self.last_daily_card_date.isoformat() if self.last_daily_card_date else None,

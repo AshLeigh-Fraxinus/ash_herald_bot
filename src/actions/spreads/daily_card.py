@@ -54,7 +54,7 @@ async def daily_card(bot, call, session):
     except FileNotFoundError:
         logger.error(f'"{session.name}", no sticker in "{sticker_path}"')
 
-        fallback_path = f"resources/tarot_deck/{card_id}_{card['position']}.webp"
+        fallback_path = f"resources/deck_tarot/{card_id}_{card['position']}.webp"
         try:
             with open(fallback_path, "rb") as sticker:
                 await bot.send_sticker(chat_id, sticker)
@@ -65,7 +65,7 @@ async def daily_card(bot, call, session):
     try:
         card_emoji = "⛤" if card['position'] == 'upright' else "⛧"
         message_text = (
-            f"{card_emoji} <b>{card_name}</b>\n⋄ <i>{card_position}</i>\n\n"
+            f"{card_emoji} <b>{card_name}</b> ⋄ <i>{card_position}</i>\n\n"
             "⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ \n\n"
             f"{meaning}")
 

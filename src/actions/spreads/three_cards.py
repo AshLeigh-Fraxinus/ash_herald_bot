@@ -138,7 +138,7 @@ async def create_cards_collage(cards, deck):
         image_path = f"resources/{deck}_deck/{card_id}_{card['position']}.webp"
         
         if not os.path.exists(image_path):
-            image_path = f"resources/tarot_deck/{card_id}_{card['position']}.webp"
+            image_path = f"resources/deck_tarot/{card_id}_{card['position']}.webp"
         
         try:
             img = Image.open(image_path)
