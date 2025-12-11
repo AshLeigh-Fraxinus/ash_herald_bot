@@ -6,7 +6,7 @@ from actions.weather.weather_actions import (
     change_city, 
     handle_city_input
 )
-from actions.spreads.deck.change_deck import change_deck, def_deck 
+from actions.cards.deck.change_deck import change_deck, def_deck 
 from utils import keyboard
 from utils.keyboard import (
     get_main_keyboard, 
@@ -46,7 +46,6 @@ async def handle_settings(bot, call, session):
         parse_mode="HTML", 
         reply_markup=markup
     )
-    logger.info(f'"{session.name}" entered settings with "/settings"')
 
 async def handle_change_name(bot, call, session):
     chat_id = await utils.get_chat_id(call)

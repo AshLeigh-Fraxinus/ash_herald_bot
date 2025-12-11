@@ -2,7 +2,7 @@ import random, os, logging, time, sqlite3
 
 from groq import Groq
 from dotenv import load_dotenv
-from actions.spreads.db_interpretation import DatabaseManager
+from actions.cards.db_interpretation import DatabaseManager
 
 load_dotenv()
 

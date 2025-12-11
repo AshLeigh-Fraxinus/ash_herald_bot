@@ -2,9 +2,10 @@ import os
 import logging, time
 from PIL import Image
 from telebot import types
-from actions.spreads.deck.deck import draw_cards
-from actions.spreads.interpretation import get_interpretation
+from actions.cards.deck.deck import draw_cards
+from actions.cards.interpretation import get_interpretation
 import utils.utils as utils
+from service.sessions import session_manager
 
 logger = logging.getLogger('H.three_cards')
 
@@ -39,7 +40,7 @@ async def handle_three_cards_question(bot, message, session):
         session.deck = deck
 
     session.state = "generating_three_cards"
-    session.data["user_question"] = user_question
+    session.temp_data["user_question"] = user_question
 
     await bot.send_message(
         chat_id, 
@@ -63,9 +64,9 @@ async def handle_three_cards_question(bot, message, session):
         meaning = await get_interpretation(full_question, cards)
         logger.debug(f'"{session.name}" received meaning: "{utils.no_newline(meaning)}"')
 
-        session.data["previous_question"] = user_question
-        session.data["previous_cards"] = cards
-        session.data["previous_meaning"] = meaning
+        session.temp_data["previous_question"] = user_question
+        session.temp_data["previous_cards"] = cards
+        session.temp_data["previous_meaning"] = meaning
         session.state = "waiting_for_additional_question"
         
     except Exception as e:

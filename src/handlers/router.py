@@ -1,4 +1,5 @@
 from handlers.handlers import route_callback, route_message
+from service.sessions import session_manager
 
 class Router:
     def __init__(self):

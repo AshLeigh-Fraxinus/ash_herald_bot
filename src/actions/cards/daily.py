@@ -2,8 +2,8 @@ import time
 import logging
 
 from telebot import types
-from actions.spreads.deck.deck import draw_cards
-from actions.spreads.interpretation import get_interpretation
+from actions.cards.deck.deck import draw_cards
+from actions.cards.interpretation import get_interpretation
 from utils.keyboard import get_main_keyboard
 from utils import utils
 from utils import texts

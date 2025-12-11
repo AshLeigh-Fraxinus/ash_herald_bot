@@ -1,8 +1,8 @@
 import logging, time
 from telebot import types
 
-from actions.spreads.deck.deck import draw_cards
-from actions.spreads.interpretation import get_interpretation
+from actions.cards.deck.deck import draw_cards
+from actions.cards.interpretation import get_interpretation
 from utils import utils
 
 logger = logging.getLogger('H.add_card')
@@ -13,22 +13,22 @@ async def handle_additional_question(bot, message, session):
 
     if hasattr(message, 'text') and message.text:
         user_question = message.text.strip()
-        session.data["additional_question"] = user_question
+        session.temp_data["additional_question"] = user_question
         full_question_context = (
-            f"Исходный вопрос: {session.data.get('previous_question', '')}. "
-            f"Исходный расклад: {session.data.get('previous_cards', [])}. "
-            f"Интерпретация исходного расклада: {session.data.get('previous_meaning', '')}. "
+            f"Исходный вопрос: {session.temp_data.get('previous_question', '')}. "
+            f"Исходный расклад: {session.temp_data.get('previous_cards', [])}. "
+            f"Интерпретация исходного расклада: {session.temp_data.get('previous_meaning', '')}. "
             f"Дополнительный вопрос: {user_question}. "
             "Дайте интерпретацию дополнительной карты в контексте исходного расклада и нового вопроса."
         )
 
     else:
         user_question = ""
-        session.data["additional_question"] = ""
+        session.temp_data["additional_question"] = ""
         full_question_context = (
-            f"Исходный вопрос: {session.data.get('previous_question', '')}. "
-            f"Исходный расклад: {session.data.get('previous_cards', [])}. "
-            f"Интерпретация исходного расклада: {session.data.get('previous_meaning', '')}. "
+            f"Исходный вопрос: {session.temp_data.get('previous_question', '')}. "
+            f"Исходный расклад: {session.temp_data.get('previous_cards', [])}. "
+            f"Интерпретация исходного расклада: {session.temp_data.get('previous_meaning', '')}. "
             "Дайте интерпретацию дополнительной карты как уточнение к исходному раскладу."
         )
 

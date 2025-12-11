@@ -1,11 +1,12 @@
 import logging
-from pydoc import text
 
 logger = logging.getLogger('H.utils')
 
-def get_username_and_names(message):
+def get_username_and_names(message, return_type='all'):
     if message is None:
         logger.error('Empty "message" passed to get_username_and_names')
+        if return_type == 'first_name':
+            return ''
         return '', '', ''
     
     username, first_name, last_name = '', '', ''
@@ -20,6 +21,14 @@ def get_username_and_names(message):
             username = username or getattr(source, fields[0], '')
             first_name = first_name or getattr(source, fields[1], '')
             last_name = last_name or getattr(source, fields[2], '')
+    
+    if return_type == 'username':
+        return username or ''
+    elif return_type == 'first_name':
+        return first_name or ''
+    elif return_type == 'last_name':
+        return last_name or ''
+    else:
         return username or '', first_name or '', last_name or ''
 
 async def get_chat_id(message):
@@ -55,8 +64,6 @@ def get_clean_name(username, first_name, last_name):
     clean_first = clean_name(first_name)
     clean_last = clean_name(last_name)
 
-    if len(username) > 0:
-        return username
     if len(last_name) > 0:
         return clean_first + " " + clean_last
     return clean_first 
