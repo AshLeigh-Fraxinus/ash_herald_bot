@@ -1,6 +1,6 @@
 import  logging
 from telebot import types
-from actions.settings.change_city import get_city_name, change_city, request_city
+from actions.settings.change_city import change_city, request_city
 from actions.weather.weather_data import get_weather_data, parse_weather_data
 from actions.weather.weather_message import format_weather_message, create_weather_keyboard
 from utils import texts
@@ -52,17 +52,17 @@ async def handle_weather_menu(bot, session):
     session.update_activity()
 
 async def handle_city_and_weather(bot, session, event):
-    await change_city(bot, session, event)
+    success = await change_city(bot, session, event)
+    if success:
+        handler_key = session.state.replace('weather_city_and_', '')
+        session.state = "weather_menu"
 
-    return_to = session.state.replace('weather_city_and_', '')
-    session.state = return_to
-
-    handler_key = return_to
-    if handler_key in WEATHER_COMMANDS:
-        await WEATHER_COMMANDS[handler_key](bot, session)
-    else:
-        await handle_weather_menu(bot, session)
-    return
+        if handler_key in WEATHER_COMMANDS:
+            logger.debug(f'"{session.username}" is waiting for "{handler_key}"')
+            await WEATHER_COMMANDS[handler_key](bot, session, handler_key)
+        else:
+            await handle_weather_menu(bot, session)
+        return
 
 async def request_weather_city(bot, session):
     old_state = session.state
@@ -75,8 +75,6 @@ async def handle_weather_request(bot, session, period):
         session.state = f"weather_city_and_weather_{period}"
         await request_city(bot, session)
         return
-    
-    logger.info(f'"{session.username}" requested weather for: "{session.city}"')
 
     period_config = {
         "today": {"cnt": 8, "target_day": 0},
@@ -104,7 +102,7 @@ async def handle_weather_request(bot, session, period):
 async def handle_unknown_command(bot, session):
     await bot.send_message(
         session.chat_id,
-        text=texts.UNKNOWN,
+        text=texts.TEXTS["UNKNOWN"],
         parse_mode="HTML",
         reply_markup=weather_keyboard()
     )

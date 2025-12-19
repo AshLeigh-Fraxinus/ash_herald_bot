@@ -1,18 +1,13 @@
 import os, requests, logging
+
+from utils import texts
 logger = logging.getLogger('H.city')
 from service.sessions import session_manager
 
 async def request_city(bot, session):
-    session.state = "change_city"
     await bot.send_message(
         session.chat_id, 
-        text = (
-            "⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ \n"
-            "<i>                 Для какого города\n"
-            "            хочешь узнать погоду?</i>\n\n"
-            "<b>Пожалуйста, напиши город</b>\n<b>на английском языке</b>\n\n"
-            "Например: Saint Petersburg"
-        ),
+        text = texts.TEXTS["CHANGE_CITY"],
         parse_mode="HTML"
     )
 
@@ -25,7 +20,7 @@ async def change_city(bot, session, event):
             text=(f"☰ <i>Город успешно изменен на</i> <b>{city_name}</b>"),
             parse_mode="HTML"
         )
-    return
+    return True
 
 
 async def validate_city(bot, session, event):

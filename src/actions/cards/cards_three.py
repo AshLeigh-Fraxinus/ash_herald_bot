@@ -2,6 +2,7 @@ import logging, time, os
 from PIL import Image
 from actions.cards.deck.deck import draw_cards
 from actions.cards.interpretation import get_interpretation
+from utils.keyboards import cards_add_keyboard, cards_keyboard
 
 logger = logging.getLogger('H.cards_three')
 
@@ -26,7 +27,7 @@ async def cards_three(bot, session):
     logger.debug(f'"{session.username}", session: "{session.state}"')
 
 async def handle_cards_three_question(bot, session, event):
-    user_question = event.text.strip()
+    user_question = event.strip()
     session.temp_data["user_question"] = user_question
 
     await bot.send_message(
@@ -90,10 +91,20 @@ async def handle_cards_three_question(bot, session, event):
                 logger.info(f'"{session.username}" received cards_three with collage')
                 session.state = "cards_add"
             os.remove(collage_path)
-            return text
+            await bot.send_message(
+                session.chat_id,
+                text,
+                parse_mode="HTML",
+                reply_markup=cards_add_keyboard()
+            )
         else:
             logger.warning(f'"{session.username}" received cards_three without collage')
-            return text
+            await bot.send_message(
+                session.chat_id,
+                text,
+                parse_mode="HTML",
+                reply_markup=cards_add_keyboard()
+            )
 
     except Exception as e:
         logger.error(f"{str(e)}")
@@ -102,7 +113,12 @@ async def handle_cards_three_question(bot, session, event):
             "       <i>Пути карт иногда извилисты,</i>\n"
             "<i>послание скрылось в тумане...</i>\n\n",
         )
-        return text
+        await bot.send_message(
+                session.chat_id,
+                text,
+                parse_mode="HTML",
+                reply_markup=cards_keyboard()
+            )
 
 async def create_cards_collage(cards, deck):
     images = []

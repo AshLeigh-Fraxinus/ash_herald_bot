@@ -12,6 +12,12 @@ def main_keyboard():
     markup.add(btn5)
     return markup
 
+def thanks_keyboard():
+    markup = types.InlineKeyboardMarkup()
+    btn1 = types.InlineKeyboardButton("⛧ К истокам", callback_data="thanks")
+    markup.add(btn1)
+    return markup
+
 
 def cards_keyboard():
     markup = types.InlineKeyboardMarkup()
@@ -62,12 +68,9 @@ def weather_keyboard():
 
 def weather_thanks_keyboard():
     markup = types.InlineKeyboardMarkup()
-    btn1 = types.InlineKeyboardButton(text="✧ Погода сегодня", callback_data='weather_today')
-    btn2 = types.InlineKeyboardButton(text="✧ Погода завтра", callback_data='weather_tomorrow')
-    btn3 = types.InlineKeyboardButton("☰ Сменить город", callback_data="weather_city")
-    btn4 = types.InlineKeyboardButton("⛧ К погоде", callback_data="weather_menu")
-    btn5 = types.InlineKeyboardButton("К истокам ⛧", callback_data="thanks")
-    markup.add(btn1, btn2)
-    markup.add(btn3)
-    markup.add(btn4, btn5)
+    btn1 = types.InlineKeyboardButton("☰ Сменить город", callback_data="weather_city")
+    btn2 = types.InlineKeyboardButton("⛧ К погоде", callback_data="weather_menu")
+    btn3 = types.InlineKeyboardButton("К истокам ⛧", callback_data="thanks")
+    markup.add(btn1)
+    markup.add(btn2, btn3)
     return markup

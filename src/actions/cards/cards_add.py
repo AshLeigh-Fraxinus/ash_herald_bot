@@ -1,12 +1,13 @@
 import logging
+from utils.keyboards import cards_add_keyboard
 from actions.cards.deck.deck import draw_cards
 from actions.cards.interpretation import get_interpretation
 
 logger = logging.getLogger('H.cards_add')
 
 async def handle_additional_question(bot, session, event):
-
     if hasattr(event, 'text') and event.text:
+
         user_question = event.text.strip()
         session.temp_data["additional_question"] = user_question
         full_question_context = (
@@ -82,4 +83,9 @@ async def handle_additional_question(bot, session, event):
     session.state = "cards_add"
     logger.info(f'"{session.username}" received "cards_add"')
     text = f"{cards_text}\n\n{meaning}\n\n⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ "
-    return text
+    await bot.send_message(
+        session.chat_id,
+        text,
+        parse_mode="HTML",
+        reply_markup=cards_add_keyboard()
+    )

@@ -12,9 +12,7 @@ logger = logging.getLogger('H.handle_cards')
 
 CARD_STATES = {
     'cards_three_question': lambda bot, session, event: handle_cards_three_question(bot, session, event),
-    'cards_daily': lambda bot, session, event: handle_additional_question(bot, session, event),
-    'cards_three': lambda bot, session, event: handle_additional_question(bot, session, event),
-    'cards_add': lambda bot, session, event: handle_additional_question(bot, session, event),
+    'cards_add': lambda bot, session, event: is_another_card_requested(bot, session, event),
     }
 
 CARD_COMMANDS = {
@@ -57,10 +55,17 @@ async def handle_cards_menu(bot, session):
     )
 
 async def handle_change_deck(bot, session, event):
-    await change_deck(bot, session, event)
-    session_manager.save_session(session.chat_id)
-    logger.debug(f'"{session.username}" prefer "{session.deck}"')
-    await handle_cards_menu(bot, session)
+    success = await change_deck(bot, session, event)
+    if success:
+        session_manager.save_session(session.chat_id)
+        await handle_cards_menu(bot, session)
+
+async def is_another_card_requested(bot, session, event):
+    if event.startswith("cards_menu"):
+        session.state = "cards_menu"
+        await handle_cards_menu(bot, session)
+    else:
+        await handle_additional_question(bot, session, event)
 
 async def handle_unknown_command(bot, session):
     await bot.send_message(

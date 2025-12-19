@@ -41,7 +41,7 @@ class Handler:
     async def _process_event(self, bot, session, event):
         try:
             session.update_activity()
-            logger.debug(f'"{session.username}" requested "{event}" in "{session.state}"')
+            logger.debug(f'"{session.username}" wrote "{event}" in "{session.state}"')
             
             for prefix, handler in HANDLERS.items():
                 if session.state.startswith(prefix) or event.startswith(prefix):

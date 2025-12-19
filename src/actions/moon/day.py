@@ -1,6 +1,7 @@
 import os, time, requests, logging
 from telebot import types
 from handlers.handle_common import main_keyboard
+from utils.keyboards import thanks_keyboard
 
 logger = logging.getLogger('H.moon_day')
 
@@ -46,7 +47,7 @@ async def moon_day(bot, session):
                     f"✧ Видимость луны  ⋆  {illumination}%"
                 ), 
                 parse_mode="HTML", 
-                reply_markup=moon_keyboard()
+                reply_markup=thanks_keyboard()
             )
             logger.info(f'"{session.username}" received: "moon_day"')
 
@@ -79,9 +80,3 @@ async def moon_day(bot, session):
             parse_mode="HTML",
             reply_markup=main_keyboard()
         )
-
-def moon_keyboard():
-    markup = types.InlineKeyboardMarkup()
-    btn1 = types.InlineKeyboardButton("⛧ К истокам", callback_data="thanks")
-    markup.add(btn1)
-    return markup

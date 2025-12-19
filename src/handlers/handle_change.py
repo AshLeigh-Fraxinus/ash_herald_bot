@@ -28,7 +28,7 @@ CHANGE_COMMANDS = {
     'change_name': lambda bot, session, event: request_name(bot, session),
     'change_deck': lambda bot, session, event: request_deck(bot, session),
     'change_menu': lambda bot, session, event: handle_change_menu(bot, session),
-    'deck_': lambda bot, session, event: change_deck(bot, session, event)
+    'deck_': lambda bot, session, event: handle_new_deck(bot, session, event)
 }
 
 
@@ -52,7 +52,6 @@ async def handle_settings(bot, session, event):
 
 
 async def handle_change_menu(bot, session):
-    logger.debug(f'sending change_menu')
     deck_display = DECK_DISPLAY_NAMES.get(session.deck, "Неизвестная колода")
     name = session.name
     session.state = "change_menu"
@@ -68,7 +67,6 @@ async def handle_change_menu(bot, session):
         parse_mode="HTML",
         reply_markup=settings_keyboard()
     )
-    logger.debug(f'change_menu sent')
 
 async def handle_new_name(bot, session, event):
     await change_name(bot, session, event)
@@ -78,17 +76,17 @@ async def handle_new_name(bot, session, event):
 
 
 async def handle_new_city(bot, session, event):
-    await change_city(bot, session, event)
-    session_manager.save_session(session.chat_id)
-    session.state = "change_menu"
-    await handle_change_menu(bot, session)
+    success = await change_city(bot, session, event)
+    if success:
+        session_manager.save_session(session.chat_id)
+        await handle_change_menu(bot, session)
 
 
 async def handle_new_deck(bot, session, event):
-    await change_deck(bot, session, event)
-    session_manager.save_session(session.chat_id)
-    session.state = "change_menu"
-    await handle_change_menu(bot, session)
+    success = await change_deck(bot, session, event)
+    if success:
+        session_manager.save_session(session.chat_id)
+        await handle_change_menu(bot, session)
 
 
 async def handle_unknown_command(bot, session):

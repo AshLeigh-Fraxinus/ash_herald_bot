@@ -23,7 +23,7 @@ async def change_deck(bot, session, event):
             session.chat_id,
             f'<i>Выбрана колода "{deck_name}"</i>', parse_mode="HTML"
         )
-        return
+        return True
     
     else:
         logger.warning(f'"{session.username}"selected unknown deck: "{event}"')
@@ -34,7 +34,7 @@ async def change_deck(bot, session, event):
             "Выбери из предложенных колод.\n",
             parse_mode="HTML",
             reply_markup=deck_keyboard())
-    return
+    return False
 
 def get_deck_display(session):
     if session.deck == 'tarot': deck_display = "Таро"

@@ -1,6 +1,8 @@
 import time, logging
 
 from actions.cards.deck.deck import draw_cards
+from utils import texts
+from utils.keyboards import cards_keyboard, cards_thanks_keyboard
 from actions.cards.interpretation import get_interpretation
 
 logger = logging.getLogger('H.cards_daily')
@@ -15,8 +17,13 @@ async def cards_daily(bot, session):
             "<i>когда старый день уступит дорогу новому...</i>\n\n"
             "<b>Сегодняшний расклад сохраняет свою силу до конца дня.</b>\n"
         )
-        logger.debug(f'"{session.username}" reched cards_daily limit for today"')
-        return text
+        logger.debug(f'"{session.username}" reached cards_daily limit for today"')
+        await bot.send_message(
+            session.chat_id, 
+            text, 
+            parse_mode="HTML", 
+            reply_markup=cards_keyboard())
+        return
 
     loading_msg1 = await bot.send_message(session.chat_id, "🕯 <i>Пламя свечи танцует в полумраке...</i>", parse_mode="HTML")
     time.sleep(1.5)
@@ -67,9 +74,8 @@ async def cards_daily(bot, session):
 
         logger.info(f'"{session.username}" received cards_daily')
         session.state = "cards_add"
-        return text
+        await bot.send_message(session.chat_id, text, parse_mode="HTML", reply_markup=cards_thanks_keyboard())
 
     except Exception as e:
         logger.error(f'"{session.username}" got error: "{str(e)}"')
-        text="<i>Что-то пошло не так, возвращаюсь обратно...</i>"
-    return text
+        await bot.send_message(session.chat_id, text=texts.TEXT["ERROR"], parse_mode="HTML", reply_markup=cards_keyboard())
