@@ -21,7 +21,7 @@ class DatabaseManager:
                 name TEXT,
                 deck TEXT DEFAULT 'tarot',
                 city TEXT DEFAULT '',
-                last_daily_card_date TEXT,
+                last_cards_daily_date TEXT,
                 created_at TEXT DEFAULT CURRENT_TIMESTAMP,
                 last_activity TEXT DEFAULT CURRENT_TIMESTAMP
                 )
@@ -72,7 +72,7 @@ class DatabaseManager:
             return
             
         allowed_fields = {
-            'username', 'first_name', 'last_name', 'name', 'last_activity', 'deck', 'city', 'last_daily_card_date',
+            'username', 'first_name', 'last_name', 'name', 'last_activity', 'deck', 'city', 'last_cards_daily_date',
         }
         
         updates = {k: v for k, v in kwargs.items() if k in allowed_fields}

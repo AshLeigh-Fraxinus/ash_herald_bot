@@ -1,6 +1,5 @@
 import datetime, logging, threading, time
 from typing import Dict, Any, Optional, List
-from utils import utils
 from service.database import db_manager
 
 logger = logging.getLogger('H.sessions')
@@ -21,7 +20,7 @@ class Session:
         self.messages: List[Dict] = [] 
 
         self.created_at = self._parse_date(user_data.get('created_at'))
-        self.last_daily_card_date = self._parse_date(user_data.get('last_daily_card_date'))
+        self.last_cards_daily_date = self._parse_date(user_data.get('last_cards_daily_date'))
         self.session_start = datetime.datetime.now()
         self.last_activity = datetime.datetime.now()
 
@@ -45,19 +44,19 @@ class Session:
             logger.debug(f"Session for {self.name} expired (inactive for {ttl_hours}h)")
         return expired
 
-    def can_draw_daily_card(self) -> bool:
-        if self.last_daily_card_date is None:
+    def can_draw_cards_daily(self) -> bool:
+        if self.last_cards_daily_date is None:
             return True
         
-        last_date = self.last_daily_card_date.date()
+        last_date = self.last_cards_daily_date.date()
         today = datetime.date.today()
         can_draw = last_date < today
         
         logger.debug(f'"{self.name}" {"can" if can_draw else "cannot"} draw daily card')
         return can_draw
 
-    def mark_daily_card_drawn(self):
-        self.last_daily_card_date = datetime.datetime.now()
+    def mark_cards_daily_drawn(self):
+        self.last_cards_daily_date = datetime.datetime.now()
         self._dirty = True
         logger.debug(f'"{self.name}" received daily card')
 
@@ -89,16 +88,12 @@ class Session:
             'state': self.state,
             'deck': self.deck,
             'city': self.city,
-            'has_daily_card': not self.can_draw_daily_card(),
+            'has_cards_daily': not self.can_draw_cards_daily(),
             'session_age': str(datetime.datetime.now() - self.session_start),
             'inactivity': str(datetime.datetime.now() - self.last_activity),
             'message_count': len(self.messages),
             'temp_data_keys': list(self.temp_data.keys())
         }
-    
-    def is_waiting_for_input(self) -> bool:
-        waiting_states = ['waiting', 'input', 'question', 'answer', 'confirm']
-        return any(wait_word in self.state.lower() for wait_word in waiting_states)
     
     def save_to_db(self, db_manager) -> bool:
         if not self._dirty:
@@ -110,12 +105,10 @@ class Session:
                 name=self.name,
                 deck=self.deck,
                 city=self.city,
-                last_daily_card_date=self.last_daily_card_date.isoformat() if self.last_daily_card_date else None,
+                last_cards_daily_date=self.last_cards_daily_date.isoformat() if self.last_cards_daily_date else None,
                 last_activity=self.last_activity.isoformat()
             )
-            
             self._dirty = False
-            logger.debug(f"Saved session data for {self.name} to DB")
             return True
             
         except Exception as e:
@@ -141,7 +134,11 @@ class SessionManager:
         thread.start()
         logger.info(f"Session cleanup thread started (interval: {self._cleanup_interval}s)")
 
-    def get_session(self, chat_id: str, user_info: tuple = None) -> Session:
+    def check_user(self, chat_id) -> bool:
+        user_data = self.db.get_user(chat_id)
+        return user_data is not None
+    
+    def get_session(self, chat_id, user_info=None) -> Session:
         with self._lock:
             if chat_id in self._sessions:
                 session = self._sessions[chat_id]
@@ -152,31 +149,34 @@ class SessionManager:
             
             if not user_data:
                 if user_info:
-                    username, first_name, last_name = user_info
-                    clean_name = utils.get_clean_name(username, first_name, last_name)
+                    username = user_info.username or ""
+                    first_name = user_info.first_name or ""
+                    last_name = user_info.last_name or ""
                 else:
                     username = first_name = last_name = ""
-                    clean_name = f"user_{chat_id}"
                 
+                name = first_name if first_name else username
                 user_data = self.db.create_user(
                     chat_id,
-                    name=clean_name,
+                    name=name,
                     username=username,
                     first_name=first_name,
                     last_name=last_name
                 )
-                logger.info(f'Created new user "{clean_name}"')
+                logger.info(f'Created new user "{name}"')
 
             session = Session(chat_id, user_data)
             self._sessions[chat_id] = session
             
-            logger.debug(f"Created new session for {session.name}")
+            logger.debug(f"Created new session for {session.username}")
             return session
 
     def save_session(self, chat_id: str):
+        session = self.get_session(chat_id)
         with self._lock:
             if chat_id in self._sessions:
                 self._sessions[chat_id].save_to_db(self.db)
+                logger.debug(f'"{session.username}" session update: "{session.state}"')
 
     def close_session(self, chat_id: str, save: bool = True):
         with self._lock:

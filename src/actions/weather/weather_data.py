@@ -142,11 +142,11 @@ def get_weather_symbol(weather_code):
 
     return WEATHER_SYMBOLS_BY_CODE.get(weather_code, "🌤")
 
-def create_weather_keyboard(include_change_city=True):
+def create_weather_keyboard(include_weather_city=True):
 
-    if include_change_city:
+    if include_weather_city:
         markup = types.InlineKeyboardMarkup()
-        btn1 = types.InlineKeyboardButton("☰ Сменить город", callback_data="change_city")
+        btn1 = types.InlineKeyboardButton("☰ Сменить город", callback_data="weather_city")
         btn2 = types.InlineKeyboardButton("⛧ К истокам", callback_data="thanks")
         markup.add(btn1, btn2)
     else:

@@ -2,8 +2,8 @@ import logging
 
 class ColoredFormatter(logging.Formatter):
     H_MODULE_COLORS = {
-        'DEBUG': '\033[5;36m', 
-        'INFO': '\033[5;34m', 
+        'DEBUG': '\033[5;34m', 
+        'INFO': '\033[5;36m', 
         'WARNING': '\033[5;35m', 
         'ERROR': '\033[5;31m'
     }
@@ -22,7 +22,7 @@ class ColoredFormatter(logging.Formatter):
         colors = self.H_MODULE_COLORS if is_h_module else self.NORMAL_MODULE_COLORS
         
         color = colors.get(record.levelname, self.RESET)
-        log_fmt = f"{color}[%(name)s]: %(message)s{self.RESET}"
+        log_fmt = f"{color}%(message)s{self.RESET}"
         formatter = logging.Formatter(log_fmt)
         return formatter.format(record)
 
