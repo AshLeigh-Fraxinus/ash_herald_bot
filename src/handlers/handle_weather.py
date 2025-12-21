@@ -1,6 +1,6 @@
 import  logging
 from telebot import types
-from actions.settings.change_city import change_city, request_city
+from actions.settings.change_city import change_city, get_city_name
 from actions.weather.weather_data import get_weather_data, parse_weather_data
 from actions.weather.weather_message import format_weather_message, create_weather_keyboard
 from utils import texts
@@ -40,11 +40,13 @@ async def handle_weather(bot, session, event):
 
 async def handle_weather_menu(bot, session):
     session.state = "weather_menu"
+    city = await get_city_name(session) if session.city and session.city != "" else "не выбран"
 
     await bot.send_message(
         session.chat_id,
         "⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ \n"
         "<i>                 Погодные знамения</i>\n"
+        f"<i>            Город {city}</i>\n\n"
         "<i>Выбери, что хочешь узнать:</i>",
         parse_mode="HTML",
         reply_markup=weather_keyboard()
@@ -67,13 +69,17 @@ async def handle_city_and_weather(bot, session, event):
 async def request_weather_city(bot, session):
     old_state = session.state
     session.state = f"weather_city_and_{old_state}"
-    await request_city(bot, session)
+    await bot.send_message(
+        session.chat_id, 
+        text = texts.TEXTS["CHANGE_CITY"],
+        parse_mode="HTML"
+    )
 
 async def handle_weather_request(bot, session, period):
     if session.city == "":
         logger.info(f'"{session.username}" has no city set, requesting the city')
         session.state = f"weather_city_and_weather_{period}"
-        await request_city(bot, session)
+        await request_weather_city(bot, session)
         return
 
     period_config = {

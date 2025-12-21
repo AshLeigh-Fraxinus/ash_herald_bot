@@ -3,7 +3,7 @@ import logging
 from actions.settings.change_name import change_name, request_name
 from service.sessions import session_manager
 from actions.settings.change_deck import change_deck, request_deck
-from actions.settings.change_city import change_city, request_city, get_city_name
+from actions.settings.change_city import change_city, get_city_name
 from utils import texts
 from utils.keyboards import settings_keyboard
 
@@ -81,6 +81,13 @@ async def handle_new_city(bot, session, event):
         session_manager.save_session(session.chat_id)
         await handle_change_menu(bot, session)
 
+async def request_city(bot, session):
+    await bot.send_message(
+        session.chat_id, 
+        text = texts.TEXTS["CHANGE_CITY"],
+        parse_mode="HTML"
+    )
+    session.state = "change_city"
 
 async def handle_new_deck(bot, session, event):
     success = await change_deck(bot, session, event)

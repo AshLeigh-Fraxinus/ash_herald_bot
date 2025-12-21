@@ -4,17 +4,11 @@ from utils import texts
 logger = logging.getLogger('H.city')
 from service.sessions import session_manager
 
-async def request_city(bot, session):
-    await bot.send_message(
-        session.chat_id, 
-        text = texts.TEXTS["CHANGE_CITY"],
-        parse_mode="HTML"
-    )
-
 async def change_city(bot, session, event):
     success, city_name = await validate_city(bot, session, event)
     session.sity = event
     if success:
+        session_manager.save_session(session.chat_id)
         await bot.send_message(
             session.chat_id,
             text=(f"☰ <i>Город успешно изменен на</i> <b>{city_name}</b>"),
