@@ -1,12 +1,24 @@
 import logging, datetime, json, sqlite3
 from typing import Optional, Dict, Any, List
+from migrations import DatabaseMigrator
 
 logger = logging.getLogger('H.database')
 
 class DatabaseManager:
     def __init__(self, db_path: str = "database/sessions.db"):
         self.db_path = db_path
+        self._run_migrations()
         self.init_database()
+
+    def _run_migrations(self):
+        migrator = DatabaseMigrator(self.db_path)
+        try:
+            migrated = migrator.migrate_if_needed()
+            if migrated:
+                logger.info("Database migrations applied successfully")
+        except Exception as e:
+            logger.error(f"Migration failed: {e}")
+            raise
 
     def init_database(self):
         with sqlite3.connect(self.db_path) as conn:
