@@ -1,8 +1,6 @@
 import os, time, asyncio, logging, signal
 
 from telebot.async_telebot import AsyncTeleBot
-from service.database import db_manager
-from service.sessions import session_manager
 from dotenv import load_dotenv
 
 from handlers.handler import Handler

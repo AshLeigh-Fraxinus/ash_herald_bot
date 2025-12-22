@@ -8,7 +8,8 @@ import bot as bot
 from utils.logging_config import setup_logging
 
 def main():
-    logger = setup_logging()
+
+    logger = setup_logging(test_mode=False)
     bot_instance = bot.TelegramBot()
     bot_instance.run()
 

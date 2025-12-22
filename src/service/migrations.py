@@ -1,4 +1,3 @@
-# migrations.py
 import sqlite3
 import logging
 
