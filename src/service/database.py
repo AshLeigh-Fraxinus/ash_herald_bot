@@ -1,6 +1,6 @@
 import logging, datetime, json, sqlite3
 from typing import Optional, Dict, Any, List
-from migrations import DatabaseMigrator
+from service.migrations import DatabaseMigrator
 
 logger = logging.getLogger('H.database')
 

@@ -53,8 +53,6 @@ class DatabaseMigrator:
             
             return True
     
-    # ===== МИГРАЦИИ =====
-    
     def migrate_to_v1(self, cursor: sqlite3.Cursor):
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS users (
@@ -84,33 +82,13 @@ class DatabaseMigrator:
     
     def migrate_to_v2(self, cursor: sqlite3.Cursor):
         cursor.execute("PRAGMA table_info(users)")
-        columns = {row[1] for row in cursor.fetchall()}
+        columns = cursor.fetchall()
+        column_names = [col[1] for col in columns]
         
-        if 'last_daily_card_date' in columns and 'last_cards_daily_date' not in columns:
-            self._rename_column_via_recreation(cursor, 'last_daily_card_date', 'last_cards_daily_date')
-
-        if 'state' in columns:
-            self._drop_column(cursor, 'state')
-
-        cursor.execute("DROP TABLE IF EXISTS session_data")
-    
-    # ===== ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ =====
-    
-    def _drop_column(self, cursor: sqlite3.Cursor, column_name: str):
-        cursor.execute('''
-            CREATE TABLE users_backup AS 
-            SELECT 
-                chat_id, username, first_name, last_name, name,
-                deck, city, 
-                COALESCE(last_cards_daily_date, last_daily_card_date) as last_cards_daily_date,
-                created_at, last_activity
-            FROM users
-        ''')
-
-        cursor.execute('DROP TABLE users')
+        logger.info(f"Current columns in users: {column_names}")
 
         cursor.execute('''
-            CREATE TABLE users (
+            CREATE TABLE IF NOT EXISTS users_new (
                 chat_id TEXT PRIMARY KEY,
                 username TEXT,
                 first_name TEXT,
@@ -124,12 +102,75 @@ class DatabaseMigrator:
             )
         ''')
 
-        cursor.execute('''
-            INSERT OR REPLACE INTO users 
-            SELECT * FROM users_backup
-        ''')
+        select_cols = []
+        insert_cols = []
 
-        cursor.execute('DROP TABLE users_backup')
+        base_columns = ['chat_id', 'username', 'first_name', 'last_name', 'name', 
+                       'deck', 'city', 'created_at', 'last_activity']
+        
+        for col in base_columns:
+            if col in column_names:
+                select_cols.append(col)
+                insert_cols.append(col)
+
+        if 'last_daily_card_date' in column_names:
+            select_cols.append('last_daily_card_date')
+            insert_cols.append('last_cards_daily_date')
+        elif 'last_cards_daily_date' in column_names:
+            select_cols.append('last_cards_daily_date')
+            insert_cols.append('last_cards_daily_date')
+
+        if select_cols:
+            select_sql = f'''
+                INSERT INTO users_new ({', '.join(insert_cols)})
+                SELECT {', '.join(select_cols)}
+                FROM users
+            '''
+            logger.info(f"Copying data with SQL: {select_sql}")
+            cursor.execute(select_sql)
+
+        cursor.execute('DROP TABLE IF EXISTS users')
+        cursor.execute('ALTER TABLE users_new RENAME TO users')
+
+        cursor.execute("DROP TABLE IF EXISTS session_data")
+    
+    def _drop_column(self, cursor: sqlite3.Cursor, column_name: str):
+        cursor.execute("PRAGMA table_info(users)")
+        columns_info = cursor.fetchall()
+
+        select_columns = []
+        create_columns = []
+        
+        for col in columns_info:
+            col_name = col[1]
+            col_type = col[2]
+            
+            if col_name == column_name:
+                continue
+            elif col_name == 'last_daily_card_date':
+                select_columns.append('last_daily_card_date as last_cards_daily_date')
+                create_columns.append('last_cards_daily_date TEXT')
+            else:
+                select_columns.append(col_name)
+                create_columns.append(f'{col_name} {col_type}')
+
+        create_sql = f'''
+            CREATE TABLE users_new (
+                {', '.join(create_columns)}
+            )
+        '''
+        cursor.execute(create_sql)
+
+        if select_columns:
+            select_sql = f'''
+                INSERT INTO users_new 
+                SELECT {', '.join(select_columns)} 
+                FROM users
+            '''
+            cursor.execute(select_sql)
+
+        cursor.execute('DROP TABLE users')
+        cursor.execute('ALTER TABLE users_new RENAME TO users')
     
     def _rename_column_via_recreation(self, cursor: sqlite3.Cursor, old_name: str, new_name: str):
         cursor.execute("PRAGMA table_info(users)")
