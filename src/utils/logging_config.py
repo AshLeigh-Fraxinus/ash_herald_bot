@@ -51,7 +51,7 @@ def setup_logging(test_mode=False):
     else:
         logging.basicConfig(
             level=logging.DEBUG,
-            format="[%(levelname)s] [%(name)s]: %(message)s",
+            format="[%(levelname)s]: %(message)s",
             handlers=[
                 logging.StreamHandler(),
                 logging.FileHandler("bot.log", "a", encoding="utf-8")

@@ -44,10 +44,7 @@ async def handle_weather_menu(bot, session):
 
     await bot.send_message(
         session.chat_id,
-        "⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ \n"
-        "<i>                 Погодные знамения</i>\n"
-        f"<i>            Город {city}</i>\n\n"
-        "<i>Выбери, что хочешь узнать:</i>",
+        texts.TEXTS["WEATHER_MENU"](city),
         parse_mode="HTML",
         reply_markup=weather_keyboard()
     )
