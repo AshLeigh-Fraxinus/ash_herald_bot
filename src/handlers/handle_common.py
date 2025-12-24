@@ -11,7 +11,7 @@ COMMON_STATES = {
     }
 
 COMMON_COMMANDS = {
-    'start': lambda bot, session, event: handle_start(bot, session),
+    '/start': lambda bot, session, event: handle_start(bot, session),
     'thanks': lambda bot, session, event: handle_thanks(bot, session),
     'support': lambda bot, session, event: handle_support(bot, session, event)
 }
