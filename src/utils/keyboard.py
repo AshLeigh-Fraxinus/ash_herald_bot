@@ -14,7 +14,7 @@ def get_cards_keyboard():
     markup = types.InlineKeyboardMarkup()
     btn1 = types.InlineKeyboardButton(text="✧ Карта дня", callback_data='daily_card')
     btn2 = types.InlineKeyboardButton(text="✧ Три лика судьбы", callback_data='three_cards')
-    btn3 = types.InlineKeyboardButton(text="✥ Выбрать колоду", callback_data='choose_deck')
+    btn3 = types.InlineKeyboardButton(text="🂠 Выбрать колоду", callback_data='choose_deck')
     btn4 = types.InlineKeyboardButton(text="⛧ К истокам", callback_data='thanks')
     markup.add(btn1)
     markup.add(btn2)
@@ -36,4 +36,14 @@ def get_deck_keyboard():
     markup.add(btn4)
     markup.add(btn5)
     markup.add(btn6)
+    return markup
+
+def get_weather_keyboard():
+    markup = types.InlineKeyboardMarkup()
+    btn1 = types.InlineKeyboardButton(text="✧ Погода сегодня", callback_data='weather_today')
+    btn2 = types.InlineKeyboardButton(text="✧ Погода завтра", callback_data='weather_tomorrow')
+    btn3 = types.InlineKeyboardButton(text="☰ Выбрать город", callback_data='change_city')
+    markup.add(btn1)
+    markup.add(btn2)
+    markup.add(btn3)
     return markup

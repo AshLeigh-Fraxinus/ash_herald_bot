@@ -8,7 +8,7 @@ from utils.keyboard import get_main_keyboard
 from utils import utils
 from utils import texts
 
-logger = logging.getLogger('DAILY_CARD')
+logger = logging.getLogger('H.daily_card')
 question = "На расклад 'Карта дня' выпала карта:"
 
 async def daily_card(bot, call, session):

@@ -1,4 +1,4 @@
-from actions.weather.weather import validate_city, weather_today
+from actions.weather.weather_handler import validate_city, weather_today
 from service import sessions
 from utils import utils, texts, keyboard
 from actions.moon import moon_day
@@ -70,7 +70,7 @@ class TextHandler:
             await def_deck(bot, message, session)
             return True
         elif session.state == "waiting_for_city":
-            from actions.weather.weather import handle_city_input
+            from actions.weather.weather_handler import handle_city_input
             await handle_city_input(bot, message, session)
             return True
         return False

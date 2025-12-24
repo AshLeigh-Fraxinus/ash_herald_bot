@@ -1,7 +1,7 @@
 import os, requests, logging
 import utils.utils as utils
 
-logger = logging.getLogger('LOCATION')
+logger = logging.getLogger('H.location')
 
 async def request_city(bot, call, session, change_city=False):
     chat_id = await utils.get_chat_id(call)

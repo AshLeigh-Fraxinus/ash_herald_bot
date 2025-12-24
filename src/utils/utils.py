@@ -1,7 +1,7 @@
 import logging
 from pydoc import text
 
-logger = logging.getLogger('UTILS')
+logger = logging.getLogger('H.utils')
 
 def get_username_and_names(message):
     if message is None:

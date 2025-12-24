@@ -2,7 +2,7 @@ import os, time, requests, logging
 import utils.utils as utils
 from telebot import types
 
-logger = logging.getLogger('MOON_DAY')
+logger = logging.getLogger('H.moon_day')
 
 async def moon_day(bot, call, session):
     chat_id = await utils.get_chat_id(call)

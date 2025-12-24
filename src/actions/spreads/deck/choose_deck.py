@@ -2,7 +2,7 @@ import logging
 import utils.utils as utils
 import utils.keyboard as keyboard
 
-logger = logging.getLogger('CHOOSE_DECK')
+logger = logging.getLogger('H.choose_deck')
 
 async def choose_deck(bot, call, session):
     chat_id = await utils.get_chat_id(call)

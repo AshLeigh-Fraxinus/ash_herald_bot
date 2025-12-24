@@ -2,21 +2,13 @@ import os, sys
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, current_dir)
+sys.dont_write_bytecode = True
 
-sys.dont_write_bytecode=True
-
-import logging
 import bot as bot
+from utils.logging_config import setup_logging
 
 def main():
-    logging.basicConfig(
-        level=logging.INFO,
-        format="[%(levelname)s] [module: %(name)s]: %(message)s",
-        handlers=[
-            logging.StreamHandler(),
-            logging.FileHandler("bot.log", "a", encoding="utf-8")
-        ]
-    )
+    logger = setup_logging()
     bot_instance = bot.TelegramBot()
     bot_instance.run()
 

@@ -1,7 +1,7 @@
 import logging, datetime, json, sqlite3
 from typing import Optional, Dict, Any, List
 
-logger = logging.getLogger('DATABASE')
+logger = logging.getLogger('H.database')
 
 class DatabaseManager:
     def __init__(self, db_path: str = "database/sessions.db"):

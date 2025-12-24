@@ -1,7 +1,7 @@
 import sqlite3
 import logging
 
-logger = logging.getLogger('DB_INTERPRETATOR')
+logger = logging.getLogger('H.db_interpretation')
 
 class DatabaseManager:
     def __init__(self, db_path: str = "database/tarot.db"):

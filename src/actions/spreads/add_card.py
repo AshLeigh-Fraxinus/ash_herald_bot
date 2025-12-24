@@ -5,7 +5,7 @@ from actions.spreads.deck.deck import draw_cards
 from actions.spreads.interpretation import get_interpretation
 from utils import utils
 
-logger = logging.getLogger('ADD_CARD')
+logger = logging.getLogger('H.add_card')
 
 async def handle_additional_question(bot, message, session):
     chat_id = await utils.get_chat_id(message)

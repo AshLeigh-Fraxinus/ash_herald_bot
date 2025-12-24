@@ -6,7 +6,7 @@ from actions.spreads.db_interpretation import DatabaseManager
 
 load_dotenv()
 
-logger = logging.getLogger('INTERPRETATOR')
+logger = logging.getLogger('H.interpretator')
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))  
 db_manager = DatabaseManager()
 
