@@ -1,54 +1,43 @@
-import os
-import logging, time
+import logging, time, os
 from PIL import Image
-from telebot import types
-from actions.spreads.deck.deck import draw_cards
-from actions.spreads.interpretation import get_interpretation
-import utils.utils as utils
+from actions.cards.deck.deck import draw_cards
+from actions.cards.interpretation import get_interpretation
+from utils.keyboards import cards_add_keyboard, cards_keyboard
 
-logger = logging.getLogger('H.three_cards')
+logger = logging.getLogger('H.cards_three')
 
-async def three_cards(bot, call, session):
-    chat_id = await utils.get_chat_id(call)
-    session.state = "waiting_for_three_cards_question"
+async def cards_three(bot, session):
+    session.state = "cards_three_question"
 
     await bot.send_message(
-        chat_id, 
+        session.chat_id, 
         "⛧ <i>Тени играют на стенах, свеча мерцает...</i>", 
         parse_mode="HTML"
     )
     time.sleep(1.5)
+    
     await bot.send_message(
-        chat_id, 
+        session.chat_id, 
         "⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ \n"
         "<i>Карты ждут твоего вопроса...</i>\n\n"
         "<i>Какую тайну доверишь им?</i>\n",
         parse_mode="HTML"
     )
 
-    logger.debug(f"User: {session.name}, session: waiting_for_three_cards_question")
+    logger.debug(f'"{session.username}", session: "{session.state}"')
 
-async def handle_three_cards_question(bot, message, session):
-    chat_id = await utils.get_chat_id(message)
-    user_question = message.text.strip()
-    deck = session.deck
-
-    if not deck or not isinstance(deck, str):
-        logger.warning(f"User: {session.name}, invalid deck: {deck}, using default 'tarot'")
-        deck = 'tarot'
-        session.deck = deck
-
-    session.state = "generating_three_cards"
-    session.data["user_question"] = user_question
+async def handle_cards_three_question(bot, session, event):
+    user_question = event.strip()
+    session.temp_data["user_question"] = user_question
 
     await bot.send_message(
-        chat_id, 
+        session.chat_id, 
         "❃ <i>Карты шелестят, переплетаясь судьбами...</i>", 
         parse_mode="HTML"
     )
     time.sleep(1.5)
 
-    cards = await draw_cards(deck, 3)
+    cards = await draw_cards(session.deck, 3)
     card_lines = []
     for i, card in enumerate(cards, 1):
         position = "прямое положение" if card["position"] == "upright" else "перевёрнутое положение"
@@ -56,36 +45,36 @@ async def handle_three_cards_question(bot, message, session):
         card_lines.append(card_line)
 
     cards_text = "\n".join(card_lines)
-    logger.debug(f'User: {session.name}, Deck: {deck}, Question: "{utils.no_newline(user_question)}", [Cards]: {cards}')
+    logger.debug(f'"{session.username}", Deck: "{session.deck}", Question: "{(user_question)}", [Cards]: "{cards}"')
 
     try:
         full_question = f"Вопрос: {user_question}. Карты: {cards}"
         meaning = await get_interpretation(full_question, cards)
-        logger.debug(f'User: {session.name}, meaning received: "{utils.no_newline(meaning)}"')
+        logger.debug(f'"{session.username}" received meaning: "{(meaning)}"')
 
-        session.data["previous_question"] = user_question
-        session.data["previous_cards"] = cards
-        session.data["previous_meaning"] = meaning
-        session.state = "waiting_for_additional_question"
+        session.temp_data["previous_question"] = user_question
+        session.temp_data["previous_cards"] = cards
+        session.temp_data["previous_meaning"] = meaning
+        session.state = "cards_add"
         
     except Exception as e:
-        logger.error(f"User: {session.name}, {str(e)}")
+        logger.error(f'"{session.username}" got error: "{str(e)}"')
         meaning = "<b>🜏 Символы остались безмолвны...</b> Попробуй позже."
 
     await bot.send_message(
-        chat_id, 
+        session.chat_id, 
         "🃍 <i>Раскрываем тайные знаки...</i>", 
         parse_mode="HTML"
     )
 
-    message_text = (
+    text = (
         "<b>═══════✦ ⋆🃍⋆ ✦════════</b>\n\n"
         f"{cards_text}\n\n"
         "⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ \n\n"
         f"{meaning}\n\n"
     )
 
-    collage_path = await create_cards_collage(cards, deck)
+    collage_path = await create_cards_collage(cards, session.deck)
 
     card_lines = []
     for i, card in enumerate(cards, 1):
@@ -94,41 +83,42 @@ async def handle_three_cards_question(bot, message, session):
         card_lines.append(card_line)
 
     cards_text = "\n".join(card_lines)
-    
-    markup = types.InlineKeyboardMarkup()
-    btn1 = types.InlineKeyboardButton("⛧ Благодарю ⛧", callback_data="thanks")
-    btn2 = types.InlineKeyboardButton("🃍 Карта-пояснение 🃍", callback_data="additional_card")
-    markup.add(btn1, btn2)
 
     try:
         if collage_path and os.path.exists(collage_path):
             with open(collage_path, "rb") as photo:
-                await bot.send_photo(
-                    chat_id, 
-                    photo
-                )
-                await bot.send_message(
-                    chat_id, 
-                    message_text, 
-                    parse_mode="HTML", 
-                    reply_markup=markup
-                )
+                await bot.send_photo(session.chat_id, photo)
+                logger.info(f'"{session.username}" received cards_three with collage')
+                session.state = "cards_add"
             os.remove(collage_path)
+            await bot.send_message(
+                session.chat_id,
+                text,
+                parse_mode="HTML",
+                reply_markup=cards_add_keyboard()
+            )
         else:
-            await bot.send_message(chat_id, message_text, parse_mode="HTML", reply_markup=markup)
-            
-        logger.info(f"User: {session.name}, action: three_cards sent with collage")
-        session.state = "waiting_for_additional_question"
+            logger.warning(f'"{session.username}" received cards_three without collage')
+            await bot.send_message(
+                session.chat_id,
+                text,
+                parse_mode="HTML",
+                reply_markup=cards_add_keyboard()
+            )
 
     except Exception as e:
         logger.error(f"{str(e)}")
-        await bot.send_message(
-            chat_id, 
+        text = ( 
             "⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ 🜏 ⋅ ⋆ ⋅ ✧ ⋅ ⋆ ⋅ ✧ ⋅ ⋆ \n"
             "       <i>Пути карт иногда извилисты,</i>\n"
             "<i>послание скрылось в тумане...</i>\n\n",
-            parse_mode="HTML"
         )
+        await bot.send_message(
+                session.chat_id,
+                text,
+                parse_mode="HTML",
+                reply_markup=cards_keyboard()
+            )
 
 async def create_cards_collage(cards, deck):
     images = []
@@ -138,7 +128,7 @@ async def create_cards_collage(cards, deck):
         image_path = f"resources/{deck}_deck/{card_id}_{card['position']}.webp"
         
         if not os.path.exists(image_path):
-            image_path = f"resources/tarot_deck/{card_id}_{card['position']}.webp"
+            image_path = f"resources/deck_tarot/{card_id}_{card['position']}.webp"
         
         try:
             img = Image.open(image_path)
@@ -152,7 +142,7 @@ async def create_cards_collage(cards, deck):
                 
             images.append(img)
         except Exception as e:
-            logger.error(f"Error loading image {image_path}: {e}")
+            logger.error(f'Error loading image "{image_path}": "{e}"')
             continue
     
     if len(images) != 3:

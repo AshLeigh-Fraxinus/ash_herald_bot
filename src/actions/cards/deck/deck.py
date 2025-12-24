@@ -52,18 +52,18 @@ LENORMAN_CARDS = [
 async def draw_cards(deck='tarot', count=1):
     if deck in ['tarot', 'deviant_moon', 'santa_muerte', 'persona3']:
         cards = TAROT_CARDS
-        logger.debug(f"Using tarot cards for deck: {deck}")
+        logger.debug(f'Using tarot cards for deck "{deck}"')
     elif deck == 'lenorman':
         cards = LENORMAN_CARDS
-        logger.debug(f"Using lenorman cards for deck: {deck}")
+        logger.debug(f'Using lenorman cards for deck "{deck}"')
     else:
-        logger.warning(f"Unknown deck type: {deck}, using tarot as fallback")
+        logger.warning(f'Unknown deck type: "{deck}", using tarot as fallback"')
         cards = TAROT_CARDS
         deck = 'tarot'
 
     if count <= 0: count = 1
     if count > len(cards): count = len(cards)
-    logger.debug(f"cards selected: {count}")
+    logger.debug(f"Selected _{count}_ cards")
 
     selected = random.sample(cards, count)
     result = []

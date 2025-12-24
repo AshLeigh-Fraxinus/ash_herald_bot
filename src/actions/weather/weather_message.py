@@ -1,15 +1,11 @@
 from telebot import types
-from .weather_service import get_weather_symbol
+from .weather_data import get_weather_symbol
 
 def format_weather_message(weather_data, period="today"):
     if not weather_data:
         return None
         
-    day_names = {
-        "today": "сегодня",
-        "tomorrow": "завтра"
-    }
-    
+    day_names = {"today": "сегодня", "tomorrow": "завтра"}
     date_str = weather_data['date'].strftime('%d.%m')
     
     message_text = (
@@ -36,17 +32,16 @@ def format_weather_message(weather_data, period="today"):
         f"✧ Восход солнца: {weather_data['sunrise']}\n"
         f"✧ Закат солнца: {weather_data['sunset']}\n"
     )
-    
     return message_text
 
-def create_weather_keyboard(include_change_city=True, include_tomorrow=True):
+def create_weather_keyboard(include_weather_city=True, include_tomorrow=True):
     markup = types.InlineKeyboardMarkup(row_width=2)
     
     buttons = []
     if include_tomorrow:
         buttons.append(types.InlineKeyboardButton("Прогноз на завтра", callback_data="weather_tomorrow"))
-    if include_change_city:
-        buttons.append(types.InlineKeyboardButton("☰ Сменить город", callback_data="change_city"))
+    if include_weather_city:
+        buttons.append(types.InlineKeyboardButton("☰ Сменить город", callback_data="weather_city"))
     buttons.append(types.InlineKeyboardButton("⛧ К истокам", callback_data="thanks"))
 
     for i in range(0, len(buttons), 2):

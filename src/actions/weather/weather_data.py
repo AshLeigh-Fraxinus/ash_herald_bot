@@ -1,5 +1,5 @@
 import os, datetime, requests, logging
-from telebot import types
+from datetime import timezone
 
 logger = logging.getLogger('H.weather_service')
 
@@ -14,82 +14,90 @@ def get_weather_data(city, cnt):
         if response.status_code == 200:
             return response.json()
         else:
-            logger.error(f"API error {response.status_code} for city: {city}")
+            logger.error(f'API error "{response.status_code}" for city: "{city}"')
             return None
     except Exception as e:
-        logger.error(f"Error fetching weather data: {e}")
+        logger.error(f'Error fetching weather data: "{e}"')
         return None
+
 
 def parse_weather_data(data, target_day=0):
     if not data:
         return None
         
     city_name = data['city']['name']
-    sunrise = datetime.datetime.fromtimestamp(data['city']['sunrise']).strftime('%H:%M')
-    sunset = datetime.datetime.fromtimestamp(data['city']['sunset']).strftime('%H:%M')
+    timezone_shift = int(data['city']['timezone'])
 
-    first_forecast_date = datetime.datetime.fromtimestamp(data['list'][0]['dt']).date()
-    target_date = first_forecast_date + datetime.timedelta(days=target_day)
+    # Восход и закат (timezone-aware)
+    sunrise_utc = datetime.datetime.fromtimestamp(data['city']['sunrise'], tz=timezone.utc)
+    sunset_utc = datetime.datetime.fromtimestamp(data['city']['sunset'], tz=timezone.utc)
     
-    forecast_date = datetime.datetime.combine(target_date, datetime.time.min)
-
-    current_forecast = None
-    for forecast in data['list']:
-        forecast_dt = datetime.datetime.fromtimestamp(forecast['dt'])
-        if forecast_dt.date() == target_date:
-            current_forecast = forecast
-            break
+    # Создаем timezone для города
+    city_tz = timezone(datetime.timedelta(seconds=timezone_shift))
     
-    if not current_forecast:
-        current_forecast = data['list'][0] 
+    # Конвертируем в локальное время города
+    sunrise_local = sunrise_utc.astimezone(city_tz)
+    sunset_local = sunset_utc.astimezone(city_tz)
 
-    current_weather_code = current_forecast['weather'][0]['id']
-    current_weather_symbol = get_weather_symbol(current_weather_code)
-
-    forecasts_by_time = {}
-
+    # Текущее время в UTC и городе
+    now_utc = datetime.datetime.now(timezone.utc)
+    now_local = now_utc.astimezone(city_tz)
+    
+    # Целевая дата
+    target_date = (now_local + datetime.timedelta(days=target_day)).date()
+    
     day_forecasts = []
     for forecast in data['list']:
-        forecast_dt = datetime.datetime.fromtimestamp(forecast['dt'])
-        if forecast_dt.date() == target_date:
-            day_forecasts.append(forecast)
+        forecast_dt_utc = datetime.datetime.fromtimestamp(forecast['dt'], tz=timezone.utc)
+        forecast_dt_local = forecast_dt_utc.astimezone(city_tz)
+        if forecast_dt_local.date() == target_date:
+            day_forecasts.append((forecast_dt_local, forecast))
+    
+    if not day_forecasts:
+        return None
+    
+    # Находим текущий прогноз (ближайший к текущему времени)
+    current_forecast = None
+    for forecast_dt, forecast in day_forecasts:
+        if forecast_dt <= now_local or not current_forecast:
+            current_forecast = forecast
+        else:
+            break
 
-    for forecast in day_forecasts:
-        hour = int(forecast['dt_txt'].split()[1].split(':')[0])
+    forecasts_by_time = {}
+    for forecast_dt, forecast in day_forecasts:
+        hour = forecast_dt.hour
         time_of_day = get_time_of_day(hour)
 
         if time_of_day not in forecasts_by_time:
             forecasts_by_time[time_of_day] = forecast
         else:
-            current_hour = hour
-            existing_hour = int(forecasts_by_time[time_of_day]['dt_txt'].split()[1].split(':')[0])
-
-            if time_of_day == "Утром" and (8 <= current_hour <= 10):
+            if time_of_day == "Утром" and 8 <= hour <= 10:
                 forecasts_by_time[time_of_day] = forecast
-            elif time_of_day == "Днём" and (13 <= current_hour <= 15):
+            elif time_of_day == "Днём" and 13 <= hour <= 15:
                 forecasts_by_time[time_of_day] = forecast
-            elif time_of_day == "Вечером" and (18 <= current_hour <= 20):
+            elif time_of_day == "Вечером" and 18 <= hour <= 20:
                 forecasts_by_time[time_of_day] = forecast
-            elif time_of_day == "Ночью" and (22 <= current_hour <= 23 or 0 <= current_hour <= 2):
+            elif time_of_day == "Ночью" and (22 <= hour <= 23 or 0 <= hour <= 2):
                 forecasts_by_time[time_of_day] = forecast
-
-    first_day_forecast = day_forecasts[0] if day_forecasts else data['list'][0]
-    pressure_mmhg = round(first_day_forecast['main']['pressure'] * 0.750062)
+    
+    pressure_mmhg = round(current_forecast['main']['pressure'] * 0.750062)
     if pressure_mmhg <= 750:
         pressure_status = "▽"
     elif pressure_mmhg >= 765:
         pressure_status = "△"
     else:
         pressure_status = "♢"
-    wind_direction = get_wind_direction(first_day_forecast['wind']['deg'])
-    wind_speed = first_day_forecast['wind']['speed']
+    
+    wind_direction = get_wind_direction(current_forecast['wind']['deg'])
+    wind_speed = current_forecast['wind']['speed']
     
     return {
-        'date': forecast_date,
+        'date': datetime.datetime.combine(target_date, datetime.time.min),
         'city_name': city_name,
-        'sunrise': sunrise,
-        'sunset': sunset,
-        'current_weather_symbol': current_weather_symbol,
+        'sunrise': sunrise_local.strftime('%H:%M'),
+        'sunset': sunset_local.strftime('%H:%M'),
+        'current_weather_symbol': get_weather_symbol(current_forecast['weather'][0]['id']),
         'forecasts_by_time': forecasts_by_time,
         'pressure_mmhg': pressure_mmhg,
         'pressure_status': pressure_status,
@@ -141,17 +149,3 @@ def get_weather_symbol(weather_code):
             WEATHER_SYMBOLS_BY_CODE[code] = symbol
 
     return WEATHER_SYMBOLS_BY_CODE.get(weather_code, "🌤")
-
-def create_weather_keyboard(include_change_city=True):
-
-    if include_change_city:
-        markup = types.InlineKeyboardMarkup()
-        btn1 = types.InlineKeyboardButton("☰ Сменить город", callback_data="change_city")
-        btn2 = types.InlineKeyboardButton("⛧ К истокам", callback_data="thanks")
-        markup.add(btn1, btn2)
-    else:
-        markup = types.InlineKeyboardMarkup()
-        btn1 = types.InlineKeyboardButton("⛧ К истокам", callback_data="thanks")
-        markup.add(btn1)
-        
-    return markup

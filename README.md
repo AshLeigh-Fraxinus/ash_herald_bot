@@ -87,11 +87,11 @@ ash_herald/
 │   │   │   └── spreads/
 │   │   │   │   ├── deck/
 │   │   │   │   │   ├── deck.py
-│   │   │   │   │   └── choose_deck.py
+│   │   │   │   │   └── change_deck.py
 │   │   │   │   ├── interpretation.py
-│   │   │   │   ├── add_card.py
-│   │   │   │   ├── daily_card.py
-│   │   │   │   └── three_cards.py
+│   │   │   │   ├── cards_add.py
+│   │   │   │   ├── cards_daily.py
+│   │   │   │   └── cards_three.py
 │   │   ├── handlers/                # Message handlers
 │   │   │   ├── main_handler.py
 │   │   │   └── spreads_handler.py
