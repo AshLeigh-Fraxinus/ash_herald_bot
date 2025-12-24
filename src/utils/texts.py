@@ -74,7 +74,7 @@ TEXTS = {
         f"{FOOTER}"
     ),
 
-    "SUPPORT_SENT_USER": lambda username="", event="":(
+    "SUPPORT_SENT_ADMIN": lambda username="", event="":(
             f"{HEADER}"
             f"Вестник прислал обращение от @{username}:\n\n"
             f"{event}"
@@ -86,7 +86,7 @@ TEXTS = {
         "       <i>я передам его мастеру...</i>\n"
     ),
 
-    "SUPPORT_SENT_ADMIN": (
+    "SUPPORT_SENT_USER": (
         f"{HEADER}"
         "<i>Сообщение было отправлено,</i>\n"
         "       <i>спасибо за обратную связь!</i>\n"

@@ -2,22 +2,22 @@ import logging
 from service.sessions import session_manager
 
 from actions.moon.day import moon_day
-from handlers.handle_cards import handle_cards
+from handlers.handle_cards import handle_cards, handle_unknown_command
 from handlers.handle_weather import handle_weather
 from handlers.handle_change import handle_settings
 from handlers.handle_admin import handle_admin
-from handlers.handle_common import handle_start, handle_support, handle_thanks, handle_unknown_command
+from handlers.handle_common import handle_common
 
 logger = logging.getLogger('H.handler')
 
 HANDLERS = {
-    '/start': lambda bot, session, event: handle_start(bot, session),
-    'thanks': lambda bot, session, event: handle_thanks(bot, session),
+    '/start': lambda bot, session, event: handle_common(bot, session, event),
+    'thanks': lambda bot, session, event: handle_common(bot, session, event),
+    'support': lambda bot, session, event: handle_common(bot, session, event),
     
     'cards_': lambda bot, session, event: handle_cards(bot, session, event),
     'change_': lambda bot, session, event: handle_settings(bot, session, event),
     'moon_': lambda bot, session, event: moon_day(bot, session),
-    'support': lambda bot, session, event: handle_support(bot, session, event),
     'weather_': lambda bot, session, event: handle_weather(bot, session, event),
     '/get_users_from_database': lambda bot, session, event: handle_admin(bot, session, event)
 }
