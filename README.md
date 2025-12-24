@@ -1,8 +1,10 @@
 ## Ash Herald 🔮
 
-A magical assistant for working with Tarot, Lenormand, and lunar cycles.        
+A magical assistant for working with Tarot and Lenormand cards, lunar cycles, and weather forecasts.         
 
 The bot combines ancient esoteric traditions with modern technology for accurate and insightful interpretations.        
+
+Current version: [**Yule** - v1.2.0](https://github.com/AshLeigh-Fraxinus/ash_herald_bot/releases/tag/v1.2.0)
 
 ---
 
@@ -22,6 +24,12 @@ The bot combines ancient esoteric traditions with modern technology for accurate
 - **Lunar Day**     
 - **Position in Zodiac Sign**       
 - **Moon Visibility Percentage**        
+
+⛅ **Weather Magic**
+
+- **Weather Forecast** for Today and Tomorrow               
+- **Change City** at Any Time           
+- **Detailed Data** Including Atmospheric Pressure, Wind Strength and Direction, as Well as Sunset and Sunrise Times        
 
 ---
 
@@ -45,16 +53,19 @@ pip install -r requirements.txt
 Create a .env file in the project root and add the following variables:     
 
 ```
-BOT_TOKEN=your_telegram_bot_token
-GROQ_API_KEY=your_groq_api_key
-MOON_API_URL=your_moon_api_endpoint
+BOT_TOKEN=<your_telegram_bot_token>
+GROQ_API_KEY=<your_groq_api_key>
+MOON_API_URL=https://moon-api.ru/v1/moonPhaseDate?lang=ru
+
+WEATHER_API_URL=https://api.openweathermap.org/data/2.5/forecast?units=metric&lang=ru&q=
+WEATHER_API_KEY=<your_openerathermap_key>
 ```
 
 #### 4. Obtaining Keys:
 
 - **Telegram Bot Token**: via @BotFather        
 - **Groq API Key**: on [platform.groq.com](https://console.groq.com/keys)       
-- **Moon API**: on https://github.com/prostraction/moon     
+- **Weather API**: on [openweathermap.org](https://openweathermap.org/)  
 
 #### 5. Run
 
@@ -72,6 +83,7 @@ python src/main.py
 - Modular system — flexible architecture with clear separation of responsibilities      
 - Professional logging — detailed monitoring of all operations      
 - Fault tolerance — automatic recovery system in case of failures       
+- Personalization – customize your bot to your preferences!     
 
 ---
 
@@ -79,38 +91,55 @@ python src/main.py
 
 ```
 ash_herald/
-├── src/
-│   ├── ash_herald/
-│   │   ├── actions/                 # Functional Modules
-│   │   │   ├── moon/
-│   │   │   │   └── moon_day.py
-│   │   │   └── spreads/
-│   │   │   │   ├── deck/
-│   │   │   │   │   ├── deck.py
-│   │   │   │   │   └── change_deck.py
-│   │   │   │   ├── interpretation.py
-│   │   │   │   ├── cards_add.py
-│   │   │   │   ├── cards_daily.py
-│   │   │   │   └── cards_three.py
-│   │   ├── handlers/                # Message handlers
-│   │   │   ├── main_handler.py
-│   │   │   └── spreads_handler.py
-│   │   ├── utils/                   # Helper Utilities
-│   │   │   ├── utils.py
-│   │   │   └── keyboard.py
-│   │   ├── database.py              # Database Initialization
-│   │   ├── sessions.py              # Session Management
-│   │   └── texts.py                 # Text Resources
-│   ├── resources/                   # Media Resources
-│   │   ├── deviant_img/
-│   │   ├── lenorman_img/
-│   │   ├── muerte_img/
-│   │   └── tarot_img/
-│   ├── bot.py                       # Main Bot
-│   └── main.py                      # Entry Point
-├── .env
-├── requirements.txt
-└── README.md
+│   .env 
+│   README.md
+│   README_ru.md
+│   requirements.txt
+├───database
+│       sessions.db
+│       tarot.db
+├───resources
+│   ├───deviant_moon_deck
+│   ├───lenorman_deck
+│   ├───persona3_deck
+│   ├───santa_muerte_deck
+│   └───tarot_deck
+└───src
+    │   bot.py
+    │   main.py
+    ├───actions
+    │   ├───cards
+    │   │   │   cards_add.py
+    │   │   │   cards_daily.py
+    │   │   │   cards_three.py
+    │   │   │   db_interpretation.py
+    │   │   │   interpretation.py
+    │   │   └───deck
+    │   │           deck.py
+    │   ├───moon
+    │   │       day.py
+    │   ├───settings
+    │   │       change_city.py
+    │   │       change_deck.py
+    │   │       change_name.py
+    │   └───weather
+    │           weather_data.py
+    │           weather_message.py
+    ├───handlers
+    │       handler.py
+    │       handle_admin.py
+    │       handle_cards.py
+    │       handle_change.py
+    │       handle_common.py
+    │       handle_weather.py
+    ├───service
+    │       database.py
+    │       migrations.py
+    │       sessions.py
+    └───utils
+            keyboards.py
+            logging_config.py
+            texts.py
 ```
 
 ---
