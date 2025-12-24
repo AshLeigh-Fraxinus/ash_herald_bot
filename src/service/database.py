@@ -1,5 +1,7 @@
-import logging, datetime, json, sqlite3
+import logging, datetime, json, sqlite3, os
 from typing import Optional, Dict, Any, List
+
+from dotenv import load_dotenv
 from service.migrations import DatabaseMigrator
 
 logger = logging.getLogger('H.database')
@@ -11,6 +13,9 @@ class DatabaseManager:
         self.init_database()
 
     def _run_migrations(self):
+        load_dotenv()
+        BOT_TOKEN = os.getenv("BOT_TOKEN")
+
         migrator = DatabaseMigrator(self.db_path)
         try:
             migrated = migrator.migrate_if_needed()

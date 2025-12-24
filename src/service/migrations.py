@@ -1,13 +1,14 @@
-import sqlite3
-import logging
+import sqlite3, logging, os, requests, time
+from typing import Optional
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('H.migrations')
 
 class DatabaseMigrator:
     def __init__(self, db_path: str):
         self.db_path = db_path
         self.version_table = "__db_version"
-        self.current_version = 2  
+        self.current_version = 3  
+        self.BOT_TOKEN = os.getenv("BOT_TOKEN")
         
     def migrate_if_needed(self) -> bool:
         with sqlite3.connect(self.db_path) as conn:
@@ -134,6 +135,100 @@ class DatabaseMigrator:
 
         cursor.execute("DROP TABLE IF EXISTS session_data")
     
+    def migrate_to_v3(self, cursor: sqlite3.Cursor):
+        if not self.BOT_TOKEN:
+            raise ValueError("BOT_TOKEN is required for migration v3")
+
+        cursor.execute('SELECT chat_id, first_name, last_name, username FROM users')
+        users = cursor.fetchall()
+        
+        total_users = len(users)
+        logger.info(f"Starting user data validation for {total_users} users")
+        
+        updated_count = 0
+        error_count = 0
+        
+        for i, user in enumerate(users, 1):
+            chat_id = user['chat_id']
+            db_first_name = user['first_name'] or ''
+            db_last_name = user['last_name'] or ''
+            db_username = user['username'] or ''
+            
+            try:
+                response = self._get_chat_member_info(chat_id)
+                
+                if response and response.get('ok'):
+                    result = response.get('result', {})
+                    user_info = result.get('user', {})
+                    
+                    api_first_name = user_info.get('first_name', '') or ''
+                    api_last_name = user_info.get('last_name', '') or ''
+                    api_username = user_info.get('username', '') or ''
+
+                    needs_update = (
+                        api_first_name != db_first_name or
+                        api_last_name != db_last_name or
+                        api_username != db_username
+                    )
+                    
+                    if needs_update:
+                        cursor.execute('''
+                            UPDATE users 
+                            SET first_name = ?, 
+                                last_name = ?, 
+                                username = ?,
+                                last_activity = CURRENT_TIMESTAMP
+                            WHERE chat_id = ?
+                        ''', (
+                            api_first_name,
+                            api_last_name,
+                            api_username,
+                            chat_id
+                        ))
+                        
+                        updated_count += 1
+                        logger.info(f"Updated user {chat_id}: "
+                                  f"first_name: {db_first_name}->{api_first_name}, "
+                                  f"last_name: {db_last_name}->{api_last_name}, "
+                                  f"username: {db_username}->{api_username}")
+
+                    if i % 10 == 0:
+                        logger.info(f"Progress: {i}/{total_users} users checked, "
+                                  f"{updated_count} updated, {error_count} errors")
+
+                time.sleep(0.1)
+                
+            except Exception as e:
+                error_count += 1
+                logger.error(f"Error checking user {chat_id}: {e}")
+                continue
+        
+        logger.info(f"User data validation completed: "
+                   f"{total_users} users checked, "
+                   f"{updated_count} updated, "
+                   f"{error_count} errors")
+    
+    def _get_chat_member_info(self, chat_id: str) -> Optional[dict]:
+
+        try:
+            url = f"https://api.telegram.org/bot{self.BOT_TOKEN}/getChatMember"
+            params = {
+                'chat_id': chat_id,
+                'user_id': chat_id
+            }
+            
+            response = requests.get(url, params=params, timeout=10)
+            response.raise_for_status()
+            
+            return response.json()
+            
+        except requests.exceptions.RequestException as e:
+            logger.error(f"API request failed for user {chat_id}: {e}")
+            return None
+        except ValueError as e:
+            logger.error(f"Invalid JSON response for user {chat_id}: {e}")
+            return None
+        
     def _drop_column(self, cursor: sqlite3.Cursor, column_name: str):
         cursor.execute("PRAGMA table_info(users)")
         columns_info = cursor.fetchall()
