@@ -5,7 +5,7 @@ def main_keyboard():
     btn1 = types.InlineKeyboardButton(text="🂠 Обратиться к картам", callback_data='cards_menu')
     btn2 = types.InlineKeyboardButton(text="☽ Лунные знамения", callback_data='moon_day')
     btn3 = types.InlineKeyboardButton(text="✧ Погодные знамения", callback_data='weather_menu')
-    btn4 = types.InlineKeyboardButton(text="☰ Изменить пути", callback_data='change_menu')
+    btn4 = types.InlineKeyboardButton(text="☰ Святилище настроек", callback_data='change_menu')
     btn5 = types.InlineKeyboardButton(text="✲ Сообщить об ошибке", callback_data='support')
     markup.add(btn2, btn1)
     markup.add(btn3, btn4)
