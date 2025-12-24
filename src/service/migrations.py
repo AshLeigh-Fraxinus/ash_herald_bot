@@ -165,24 +165,36 @@ class DatabaseMigrator:
                     api_last_name = user_info.get('last_name', '') or ''
                     api_username = user_info.get('username', '') or ''
 
+                    if api_first_name:
+                        new_name = api_first_name
+                        if api_last_name:
+                            new_name = f"{api_first_name} {api_last_name}"
+                    elif api_username:
+                        new_name = api_username
+                    else:
+                        new_name = f"user_{chat_id}"
+                    
                     needs_update = (
                         api_first_name != db_first_name or
                         api_last_name != db_last_name or
-                        api_username != db_username
+                        api_username != db_username or
+                        new_name != user.get('name', '') 
                     )
-                    
+
                     if needs_update:
                         cursor.execute('''
                             UPDATE users 
                             SET first_name = ?, 
                                 last_name = ?, 
                                 username = ?,
+                                name = ?,
                                 last_activity = CURRENT_TIMESTAMP
                             WHERE chat_id = ?
                         ''', (
                             api_first_name,
                             api_last_name,
                             api_username,
+                            new_name,
                             chat_id
                         ))
                         
