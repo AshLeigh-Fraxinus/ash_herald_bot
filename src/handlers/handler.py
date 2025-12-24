@@ -5,6 +5,7 @@ from actions.moon.day import moon_day
 from handlers.handle_cards import handle_cards
 from handlers.handle_weather import handle_weather
 from handlers.handle_change import handle_settings
+from handlers.handle_admin import handle_admin
 from handlers.handle_common import handle_start, handle_support, handle_thanks, handle_unknown_command
 
 logger = logging.getLogger('H.handler')
@@ -17,7 +18,8 @@ HANDLERS = {
     'change_': lambda bot, session, event: handle_settings(bot, session, event),
     'moon_': lambda bot, session, event: moon_day(bot, session),
     'support': lambda bot, session, event: handle_support(bot, session, event),
-    'weather_': lambda bot, session, event: handle_weather(bot, session, event)
+    'weather_': lambda bot, session, event: handle_weather(bot, session, event),
+    '/get_users_from_database': lambda bot, session, event: handle_admin(bot, session, event)
 }
 
 class Handler:
