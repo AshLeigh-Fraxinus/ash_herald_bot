@@ -60,10 +60,12 @@ def weather_keyboard():
     markup = types.InlineKeyboardMarkup()
     btn1 = types.InlineKeyboardButton(text="✧ Погода сегодня", callback_data='weather_today')
     btn2 = types.InlineKeyboardButton(text="✧ Погода завтра", callback_data='weather_tomorrow')
-    btn3 = types.InlineKeyboardButton(text="☰ Выбрать город", callback_data='weather_city')
-    btn4 = types.InlineKeyboardButton(text="⛧ К истокам ⛧", callback_data='thanks')
+    btn3 = types.InlineKeyboardButton(text="✧ Погода на 5 дней", callback_data='weather_week')
+    btn4 = types.InlineKeyboardButton(text="☰ Выбрать город", callback_data='weather_city')
+    btn5 = types.InlineKeyboardButton(text="⛧ К истокам ⛧", callback_data='thanks')
     markup.add(btn1, btn2)
-    markup.add(btn3, btn4)
+    markup.add(btn3)
+    markup.add(btn4, btn5)
     return markup
 
 def weather_thanks_keyboard():

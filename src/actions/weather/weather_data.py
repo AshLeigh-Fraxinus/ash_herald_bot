@@ -1,151 +1,149 @@
-import os, datetime, requests, logging
-from datetime import timezone
+import os
+import requests
+import logging
+from datetime import datetime, timedelta, timezone
+from collections import defaultdict
 
 logger = logging.getLogger('H.weather_service')
 
-def get_weather_data(city, cnt):
+def get_weather_data(city):
     base_url = os.getenv("WEATHER_API_URL")
     key = os.getenv("WEATHER_API_KEY")
-    
-    url = base_url + city + "&cnt=" + cnt + "&appid=" + key
-    
+    url = f"{base_url}{city}&cnt=40&appid={key}&units=metric&lang=ru"
     try:
         response = requests.get(url)
         if response.status_code == 200:
             return response.json()
-        else:
-            logger.error(f'API error "{response.status_code}" for city: "{city}"')
-            return None
+        logger.error(f'API error "{response.status_code}" for city: "{city}"')
+        return None
     except Exception as e:
         logger.error(f'Error fetching weather data: "{e}"')
         return None
 
+class WeatherParser:
+    def __init__(self, data):
+        self.data = data
+        self.city_name = data['city']['name']
+        self.tz_shift = int(data['city']['timezone'])
+        self.city_tz = timezone(timedelta(seconds=self.tz_shift))
+        self.now_utc = datetime.now(timezone.utc)
+        self.now_local = self.now_utc.astimezone(self.city_tz)
+        self._grouped = self._group_by_day()
 
-def parse_weather_data(data, target_day=0):
-    if not data:
-        return None
+    def _group_by_day(self):
+        grouped = defaultdict(list)
+        for item in self.data['list']:
+            dt_utc = datetime.fromtimestamp(item['dt'], tz=timezone.utc)
+            dt_local = dt_utc.astimezone(self.city_tz)
+            grouped[dt_local.date()].append({
+                'dt': dt_local,
+                'data': item
+            })
+        return grouped
+
+    def get_day_report(self, day_offset=0):
+        target_date = (self.now_local + timedelta(days=day_offset)).date()
+        day_items = self._grouped.get(target_date)
+        if not day_items: return None
+
+        sunrise = datetime.fromtimestamp(self.data['city']['sunrise'], tz=timezone.utc).astimezone(self.city_tz)
+        sunset = datetime.fromtimestamp(self.data['city']['sunset'], tz=timezone.utc).astimezone(self.city_tz)
+
+        current_item = day_items[0]['data']
+        for item in day_items:
+            if item['dt'] > self.now_local:
+                current_item = item['data']
+                break
+
+        forecasts_by_time = {}
+        for item in day_items:
+            hour = item['dt'].hour
+            phase = self._get_time_of_day(hour)
+            if phase not in forecasts_by_time:
+                 forecasts_by_time[phase] = item['data']
+            else:
+                if (phase == "Утром" and 8 <= hour <= 10) or \
+                   (phase == "Днём" and 13 <= hour <= 15) or \
+                   (phase == "Вечером" and 18 <= hour <= 20):
+                    forecasts_by_time[phase] = item['data']
+
+        pressure_val = round(current_item['main']['pressure'] * 0.750062)
         
-    city_name = data['city']['name']
-    timezone_shift = int(data['city']['timezone'])
+        return {
+            'type': 'daily',
+            'city_name': self.city_name,
+            'date': target_date,
+            'sunrise': sunrise.strftime('%H:%M'),
+            'sunset': sunset.strftime('%H:%M'),
+            'current_symbol': get_weather_symbol(current_item['weather'][0]['id']),
+            'forecasts_by_time': forecasts_by_time,
+            'pressure_mmhg': pressure_val,
+            'pressure_status': self._get_pressure_status(pressure_val),
+            'wind_speed': current_item['wind']['speed'],
+            'wind_direction': self._get_wind_direction(current_item['wind']['deg'])
+        }
 
-    # Восход и закат (timezone-aware)
-    sunrise_utc = datetime.datetime.fromtimestamp(data['city']['sunrise'], tz=timezone.utc)
-    sunset_utc = datetime.datetime.fromtimestamp(data['city']['sunset'], tz=timezone.utc)
-    
-    # Создаем timezone для города
-    city_tz = timezone(datetime.timedelta(seconds=timezone_shift))
-    
-    # Конвертируем в локальное время города
-    sunrise_local = sunrise_utc.astimezone(city_tz)
-    sunset_local = sunset_utc.astimezone(city_tz)
+    def get_week_report(self):
+        days_data = []
+        for date, items in sorted(self._grouped.items()):
+            temps = [x['data']['main']['temp'] for x in items]
 
-    # Текущее время в UTC и городе
-    now_utc = datetime.datetime.now(timezone.utc)
-    now_local = now_utc.astimezone(city_tz)
-    
-    # Целевая дата
-    target_date = (now_local + datetime.timedelta(days=target_day)).date()
-    
-    day_forecasts = []
-    for forecast in data['list']:
-        forecast_dt_utc = datetime.datetime.fromtimestamp(forecast['dt'], tz=timezone.utc)
-        forecast_dt_local = forecast_dt_utc.astimezone(city_tz)
-        if forecast_dt_local.date() == target_date:
-            day_forecasts.append((forecast_dt_local, forecast))
-    
-    if not day_forecasts:
-        return None
-    
-    # Находим текущий прогноз (ближайший к текущему времени)
-    current_forecast = None
-    for forecast_dt, forecast in day_forecasts:
-        if forecast_dt <= now_local or not current_forecast:
-            current_forecast = forecast
-        else:
-            break
+            noon_item = next((x['data'] for x in items if 12 <= x['dt'].hour <= 15), items[len(items)//2]['data'])
 
-    forecasts_by_time = {}
-    for forecast_dt, forecast in day_forecasts:
-        hour = forecast_dt.hour
-        time_of_day = get_time_of_day(hour)
+            pressure_val = round(noon_item['main']['pressure'] * 0.750062)
 
-        if time_of_day not in forecasts_by_time:
-            forecasts_by_time[time_of_day] = forecast
-        else:
-            if time_of_day == "Утром" and 8 <= hour <= 10:
-                forecasts_by_time[time_of_day] = forecast
-            elif time_of_day == "Днём" and 13 <= hour <= 15:
-                forecasts_by_time[time_of_day] = forecast
-            elif time_of_day == "Вечером" and 18 <= hour <= 20:
-                forecasts_by_time[time_of_day] = forecast
-            elif time_of_day == "Ночью" and (22 <= hour <= 23 or 0 <= hour <= 2):
-                forecasts_by_time[time_of_day] = forecast
-    
-    pressure_mmhg = round(current_forecast['main']['pressure'] * 0.750062)
-    if pressure_mmhg <= 750:
-        pressure_status = "▽"
-    elif pressure_mmhg >= 765:
-        pressure_status = "△"
-    else:
-        pressure_status = "♢"
-    
-    wind_direction = get_wind_direction(current_forecast['wind']['deg'])
-    wind_speed = current_forecast['wind']['speed']
-    
-    return {
-        'date': datetime.datetime.combine(target_date, datetime.time.min),
-        'city_name': city_name,
-        'sunrise': sunrise_local.strftime('%H:%M'),
-        'sunset': sunset_local.strftime('%H:%M'),
-        'current_weather_symbol': get_weather_symbol(current_forecast['weather'][0]['id']),
-        'forecasts_by_time': forecasts_by_time,
-        'pressure_mmhg': pressure_mmhg,
-        'pressure_status': pressure_status,
-        'wind_direction': wind_direction,
-        'wind_speed': wind_speed
-    }
+            days_data.append({
+                'date': date,
+                'temp_min': round(min(temps)),
+                'temp_max': round(max(temps)),
+                'symbol': get_weather_symbol(noon_item['weather'][0]['id']),
 
-def get_time_of_day(hour):
-    if 6 <= hour < 12:
-        return "Утром"
-    elif 12 <= hour < 18:
-        return "Днём"
-    elif 18 <= hour < 24:
-        return "Вечером"
-    else:
-        return "Ночью"
+                'wind_speed': round(noon_item['wind']['speed'], 1),
+                'wind_direction': self._get_wind_direction(noon_item['wind']['deg']),
+                'pressure_mmhg': pressure_val,
+                'pressure_status': self._get_pressure_status(pressure_val)
+            })
+        
+        return {
+            'type': 'weekly',
+            'city_name': self.city_name,
+            'days': days_data
+        }
 
-def get_wind_direction(degrees):
-    directions = [
-        (0, 22.5, "северный"),
-        (22.5, 67.5, "северо-восточный"),
-        (67.5, 112.5, "восточный"),
-        (112.5, 157.5, "юго-восточный"),
-        (157.5, 202.5, "южный"),
-        (202.5, 247.5, "юго-западный"),
-        (247.5, 292.5, "западный"),
-        (292.5, 337.5, "северо-западный"),
-        (337.5, 360, "северный")
-    ]
-    for min_deg, max_deg, direction in directions:
-        if min_deg <= degrees < max_deg:
-            return direction
-    return "северный"
+    @staticmethod
+    def _get_time_of_day(hour):
+        if 6 <= hour < 12: return "Утром"
+        elif 12 <= hour < 18: return "Днём"
+        elif 18 <= hour < 24: return "Вечером"
+        else: return "Ночью"
 
-def get_weather_symbol(weather_code):
-    WEATHER_SYMBOLS = {
+    @staticmethod
+    def _get_pressure_status(mmhg):
+        if mmhg <= 750: return "▽"
+        elif mmhg >= 765: return "△"
+        return "♢"
+
+    @staticmethod
+    def _get_wind_direction(degrees):
+        directions = [
+            (0, 22.5, "северный"), (22.5, 67.5, "с-в"),
+            (67.5, 112.5, "восточный"), (112.5, 157.5, "ю-в"),
+            (157.5, 202.5, "южный"), (202.5, 247.5, "ю-з"),
+            (247.5, 292.5, "западный"), (292.5, 337.5, "с-з"),
+            (337.5, 360, "северный")
+        ]
+        for min_d, max_d, name in directions:
+            if min_d <= degrees < max_d: return name
+        return "сев"
+
+def get_weather_symbol(code):
+    SYMBOLS = {
         "⛈️": [200, 201, 202, 210, 211, 212, 221, 230, 231, 232],
         "🌧️": [500, 501, 502, 503, 504, 511, 520, 521, 522, 531],
         "🌨️": [600, 601, 602, 611, 612, 613, 615, 616, 620, 621, 622],
         "☁️": [741, 804],
-        "☀️": [800],
-        "⛅": [801, 802],
-        "🌥️": [803, 804]
+        "☀️": [800], "⛅": [801, 802], "🌥️": [803, 804]
     }
-    
-    WEATHER_SYMBOLS_BY_CODE = {}
-    for symbol, codes in WEATHER_SYMBOLS.items():
-        for code in codes:
-            WEATHER_SYMBOLS_BY_CODE[code] = symbol
-
-    return WEATHER_SYMBOLS_BY_CODE.get(weather_code, "🌤")
+    for symbol, codes in SYMBOLS.items():
+        if code in codes: return symbol
+    return "🌤"

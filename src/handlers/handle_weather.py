@@ -1,16 +1,18 @@
 import  logging
-from telebot import types
-from actions.settings.change_city import change_city, get_city_name
-from actions.weather.weather_data import get_weather_data, parse_weather_data
-from actions.weather.weather_message import format_weather_message, create_weather_keyboard
+
 from utils import texts
 from utils.keyboards import weather_keyboard
+from actions.settings.change_city import change_city, get_city_name
+from actions.weather.weather_data import WeatherParser, get_weather_data
+from actions.weather.weather_message import format_weather_message, create_weather_keyboard
+from actions.weather.graph_generator import generate_weekly_graph
 
 logger = logging.getLogger('H.weather')
 
 WEATHER_COMMANDS = {
     'weather_today': lambda bot, session, event: handle_weather_request(bot, session, 'today'),
     'weather_tomorrow': lambda bot, session, event: handle_weather_request(bot, session, 'tomorrow'),
+    'weather_week': lambda bot, session, event: handle_weather_request(bot, session, 'week'),
     'weather_city': lambda bot, session, event: request_weather_city(bot, session),
     'weather_menu': lambda bot, session, event: handle_weather_menu(bot, session)
 }
@@ -79,27 +81,54 @@ async def handle_weather_request(bot, session, period):
         await request_weather_city(bot, session)
         return
 
-    period_config = {
-        "today": {"cnt": 8, "target_day": 0},
-        "tomorrow": {"cnt": 16, "target_day": 1}
-    }
-    config = period_config.get(period, period_config["today"])
+    raw_data = get_weather_data(session.city)
+    
+    if not raw_data:
+         await bot.send_message(session.chat_id, "Не удалось связаться с метеостанцией 📡", reply_markup=weather_keyboard())
+         return
 
-    data = get_weather_data(session.city, cnt=str(config["cnt"]))
-    weather_data = parse_weather_data(data, target_day=config["target_day"])
+    parser = WeatherParser(raw_data)
+    
+    weather_data = None
+    period_label = "" 
 
-    message_text = format_weather_message(weather_data, period=period)
-    markup = create_weather_keyboard(
-        include_weather_city=True, 
-        include_tomorrow=(period == "today")
-    )
+    if period == "today":
+        weather_data = parser.get_day_report(day_offset=0)
+        period_label = "сегодня"
+    elif period == "tomorrow":
+        weather_data = parser.get_day_report(day_offset=1)
+        period_label = "завтра"
+    elif period == "week":
+        weather_data = parser.get_week_report()
+        period_label = "неделю"
+
+    message_text = format_weather_message(weather_data, period_label)
+    markup = create_weather_keyboard(current_view=period)
     
     session.state = "weather_menu"
-    await bot.send_message(
-        session.chat_id, 
-        message_text, 
-        parse_mode="HTML", 
-        reply_markup=markup)
+
+    if period == "week":
+        try:
+            photo = generate_weekly_graph(weather_data)
+
+            await bot.send_photo(
+                session.chat_id,
+                photo,
+                caption=message_text,
+                parse_mode="HTML",
+                reply_markup=markup
+            )
+        except Exception as e:
+            logger.error(f"Graph generation failed: {e}")
+            await bot.send_message(session.chat_id, message_text, parse_mode="HTML", reply_markup=markup)
+            
+    else:
+        await bot.send_message(
+            session.chat_id, 
+            message_text, 
+            parse_mode="HTML", 
+            reply_markup=markup
+        )   
     logger.info(f'"{session.username}" received "weather_{period}"')
 
 async def handle_unknown_command(bot, session):
