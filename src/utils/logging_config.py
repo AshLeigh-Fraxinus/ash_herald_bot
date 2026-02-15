@@ -44,7 +44,6 @@ def setup_logging(test_mode=False):
         console_handler.setLevel(logging.DEBUG)
 
         logger = logging.getLogger()
-        logger.setLevel(logging.DEBUG)
         logger.handlers.clear() 
         logger.addHandler(console_handler)
 
@@ -58,5 +57,11 @@ def setup_logging(test_mode=False):
             ]
         )
         logger = logging.getLogger()
-    
+
+    logging.getLogger('matplotlib').setLevel(logging.WARNING)
+    logging.getLogger('urllib3').setLevel(logging.WARNING)
+    logging.getLogger('PIL').setLevel(logging.WARNING)
+
+    logger.setLevel(logging.DEBUG)
+
     return logger
