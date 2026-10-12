@@ -26,10 +26,11 @@ async def make_llm_request(question, cards_description):
     for attempt in range(3):
         try:
             response = client.chat.completions.create(
-                model='llama-3.3-70b-versatile',
+                model='openai/gpt-oss-120b',
                 messages=[system_settings, user_settings],
                 temperature=0.7,
-                max_tokens=500,
+                max_tokens=1200,
+                extra_body={'reasoning_effort': 'low'},
                 timeout=15
             )
             interpretation = response.choices[0].message.content

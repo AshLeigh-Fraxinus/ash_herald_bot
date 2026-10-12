@@ -51,7 +51,7 @@ async def cards_daily(bot, session):
     except FileNotFoundError:
         logger.error(f'"{session.username}", no sticker in "{sticker_path}"')
 
-        fallback_path = f"resources/deck_tarot/{card_id}_{card['position']}.webp"
+        fallback_path = f"resources/tarot_deck/{card_id}_{card['position']}.webp"
         try:
             with open(fallback_path, "rb") as sticker:
                 await bot.send_sticker(session.chat_id, sticker)

@@ -41,7 +41,7 @@ async def handle_additional_question(bot, session, event):
 
     card_id = card['number']
     sticker_path = f"resources/{session.deck}_deck/{card_id}_{card['position']}.webp"
-    fallback_path = f"resources/deck_tarot/{card_id}_{card['position']}.webp"
+    fallback_path = f"resources/tarot_deck/{card_id}_{card['position']}.webp"
     
     try:
         with open(sticker_path, "rb") as sticker:
