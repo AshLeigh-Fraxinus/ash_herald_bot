@@ -50,7 +50,7 @@ class Handler:
                     await handler(bot, session, event)
                     return
             
-            logger.warning(f'Error handling message "{event}" for "{session.username}" in "{session.state}": {e}')
+            logger.warning(f'Unknown command {event!r} for "{session.username}" in "{session.state}"')
             await handle_unknown_command(bot, session)
                 
         except Exception as e:

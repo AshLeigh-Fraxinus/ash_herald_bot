@@ -148,15 +148,15 @@ async def create_cards_collage(cards, deck):
     if len(images) != 3:
         return None
     
-    scale_factor = 1.4
+    scale_factor = 1.0
+    card_width = int(min(img.width for img in images) * scale_factor)
+    card_height = int(min(img.height for img in images) * scale_factor)
+
     scaled_images = []
     for img in images:
-        new_width = int(img.width * scale_factor)
-        new_height = int(img.height * scale_factor)
-        scaled_img = img.resize((new_width, new_height), Image.LANCZOS)
+        scaled_img = img.resize((card_width, card_height), Image.LANCZOS)
         scaled_images.append(scaled_img)
     
-    card_width, card_height = scaled_images[0].size
     padding = 10
     collage_width = (card_width * 3) + (padding * 4)
     collage_height = card_height + (padding * 2)

@@ -6,9 +6,9 @@ from actions.cards.interpretation import get_interpretation
 logger = logging.getLogger('H.cards_add')
 
 async def handle_additional_question(bot, session, event):
-    if hasattr(event, 'text') and event.text:
+    if event and not event.startswith("cards_"):
 
-        user_question = event.text.strip()
+        user_question = event.strip()
         session.temp_data["additional_question"] = user_question
         full_question_context = (
             f"Исходный вопрос: {session.temp_data.get('previous_question', '')}. "
